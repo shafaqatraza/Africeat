@@ -4,7 +4,6 @@ namespace App\Exceptions;
 
 use Exception;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
-use Throwable;
 
 class Handler extends ExceptionHandler
 {
@@ -30,11 +29,14 @@ class Handler extends ExceptionHandler
     /**
      * Report or log an exception.
      *
-     * @param  \Throwable  $exception
+     * @param  \Exception  $exception
      * @return void
      */
-    public function report(Throwable $exception)
+    public function report(Exception $exception)
     {
+        if (app()->bound('sentry') && $this->shouldReport($exception)) {
+            app('sentry')->captureException($exception);
+        }
         parent::report($exception);
     }
 
@@ -42,22 +44,22 @@ class Handler extends ExceptionHandler
      * Render an exception into an HTTP response.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Throwable  $exception
+     * @param  \Exception  $exception
      * @return \Illuminate\Http\Response
      */
-    public function render($request, Throwable $exception)
+    public function render($request, Exception $exception)
     {
         // handle stripe errors
-
+        
         if ($exception instanceof \Stripe\Exception\CardException ||
             $exception instanceof \Stripe\Error\Api ||
             $exception instanceof \Stripe\Error\ApiConnection ||
             $exception instanceof \Stripe\Error\Authentication ||
             $exception instanceof \Stripe\Error\InvalidRequest ||
-            $exception instanceof \Stripe\Error\Base) {
+            $exception instanceof \Stripe\Error\Base)
+        {
             $body = $exception->getJsonBody();
-            $err = $body['error']['message'];
-
+            $err  = $body['error']['message'];
             return back()->withError($err);
         }
 

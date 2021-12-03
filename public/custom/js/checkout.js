@@ -1,92 +1,16 @@
-"use strict";
-
+console.log("Checkout JS includeded");
 window.onload?window.onload():console.log("No other windowonload foound");
 window.onload = function () {
-    checkPrivacyPolicy();
     initAddress();
     initCOD();
-    disableFunctions();
+    //getUserAddresses();
 
     if(ENABLE_STRIPE){
         initStripePayment();
     }
 }
-var disableFunctions=function(){
-    if(SYSTEM_IS_WP=="1"){
-       
-        disableFunctionsWP();
-    }
-    if(SYSTEM_IS_QR=="1"){
-        
-        disableFunctionsQR();
-    }
-    
-}
-var disableFunctionsWP=function(){
-    var DISABLE_DELIVERY=(RESTORANT.can_deliver == 0);
-    var DISABLE_PICKUP=(RESTORANT.can_pickup == 0);
-    if(DISABLE_DELIVERY){
-        $('input:radio[name=deliveryType][value=delivery]').attr('disabled', true);
-    }
-    if(DISABLE_PICKUP){
-        $('input:radio[name=deliveryType][value=pickup]').attr('disabled', true);
-    }
-    if(DISABLE_DELIVERY||DISABLE_PICKUP){
-        $("input:radio[name=deliveryType]:not(:disabled):first").attr('checked', true);
-        orderTypeSwither($('input[name="deliveryType"]:checked').val());
-    }
-}
-var disableFunctionsQR=function(){
-    
-    var DISABLE_DELIVERY=(RESTORANT.can_deliver == 0);
-    var DISABLE_PICKUP=(RESTORANT.can_pickup == 0);
-    var DISABLE_DINEIN=false;
 
-
-    //dineType
-    if(DISABLE_DELIVERY){
-      $('input:radio[name=dineType][value=delivery]').attr('disabled', true);
-    }
-    if(DISABLE_PICKUP){
-      $('input:radio[name=dineType][value=takeaway]').attr('disabled', true);
-    }
-    if(DISABLE_DINEIN){
-      $('input:radio[name=dineType][value=dinein]').attr('disabled', true);
-    }
-    if(DISABLE_DELIVERY||DISABLE_PICKUP||DISABLE_DINEIN){
-        $("input:radio[name=dineType]:not(:disabled):first").attr('checked', true);
-        //alert($('input[name="dineType"]:checked').val());
-        $('.delTimeTS').hide();
-        $('.picTimeTS').show();
-        dineTypeSwitch($('input[name="dineType"]:checked').val());
-        //$("input:radio[name=dineType]").trigger("change");
-    }
-
-  
-   
-   // $("input:radio[name=deliveryType]:not(:disabled):first").attr('checked', true);
-
-  
-    
-    //$("input:radio[name=deliveryType]").trigger("change");
-  }
-
-var checkPrivacyPolicy = function(){
-    if (!$('#privacypolicy').is(':checked')) {
-
-        $('.paymentbutton').attr("disabled", true);
-    }
-}
-
-$("#privacypolicy").change(function() {
-    if(this.checked) {
-        $('.paymentbutton').attr("disabled", false);
-    }else{
-        $('.paymentbutton').attr("disabled", true);
-    }
-});
-
-var validateAddressInArea = function(positions, area){
+validateAddressInArea = function(positions, area){
     var paths = [];
 
     if(area !== null){
@@ -98,6 +22,7 @@ var validateAddressInArea = function(positions, area){
 
     if(area != null){
         Object.keys(positions).map(function(key, index) {
+            //alert("OK")
             setTimeout(function() {
                 var belongsToArea = google.maps.geometry.poly.containsLocation(new google.maps.LatLng(positions[key].lat, positions[key].lng), delivery_area);
 
@@ -109,15 +34,45 @@ var validateAddressInArea = function(positions, area){
     }
 }
 
+/*getUserAddresses = function(){
+    var restaurant_id = $('#restaurant_id').val();
+    var address_ids = [];
 
+    $("#addressID option").each(function()
+    {
+        address_ids.push($(this).val());
+    });
 
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+
+    $.ajax({
+        type: 'POST',
+        url: '/address/delivery',
+        data: {
+            address_ids: address_ids,
+            restaurant_id: restaurant_id
+        },
+        success:function(response){
+            if(response.status){
+                validateAddressInArea(response.data.positions, response.data.area);
+            }
+        }, error: function (response) {
+            //return callback(false, response.responseJSON.errMsg);
+        }
+    })
+}*/
 
 //JS FORM Validate functions
-var validateOrderFormSubmit=function(){
+validateOrderFormSubmit=function(){
     var deliveryMethod=$('input[name="deliveryType"]:checked').val();
 
     //If deliverty, we need to have selected address
     if(deliveryMethod=="delivery"){
+        //console.log($("#addressID").val())
         if ($("#addressID").val()) {
             return true;
         }else{
@@ -129,16 +84,16 @@ var validateOrderFormSubmit=function(){
     }
 }
 
-var initCOD=function(){
-    
+initCOD=function(){
+    console.log("Initialize COD");
      // Handle form submission  - for card.
      var form = document.getElementById('order-form');
      form.addEventListener('submit', async function(event) {
          event.preventDefault();
-         
+         console.log('prevented');
          //IF delivery - we need to have selected address
          if(validateOrderFormSubmit()){
-            
+            console.log('Form valid');
             form.submit();
          }
     });
@@ -149,9 +104,9 @@ var initCOD=function(){
  * Payment Functions
  *
  */
-var initStripePayment=function(){
+initStripePayment=function(){
 
-    
+    console.log("Payment initialzing");
 
     //On select payment method
     $('input:radio[name="paymentType"]').change(
@@ -264,14 +219,6 @@ var initStripePayment=function(){
 
         // Submit the form
         form.submit();
-
-        //Disable the field
-        $('#stripeSend').hide();
-        $('#indicatorStripe').show();
-        setTimeout(function(){ 
-          $('#stripeSend').show(); 
-          $('#indicatorStripe').hide();
-        }, 10000);
     }
 }
 
@@ -280,10 +227,10 @@ var initStripePayment=function(){
  * Address Functions
  *
  */
-var initAddress=function(){
-    
+initAddress=function(){
+    console.log("Address initialzing");
 
-    var start = "/images/pin.png"
+    var start = "https://cdn1.iconfinder.com/data/icons/Map-Markers-Icons-Demo-PNG/48/Map-Marker-Ball-Pink.png"
     var map = null;
     var markerData = null;
     var marker = null;
@@ -299,7 +246,7 @@ var initAddress=function(){
         $("#new_address_checkout_holder").hide();
         var place_id = $("#new_address_checkout option:selected").val();
         var place_name = $("#new_address_checkout option:selected").text();
-        
+        console.log("Selected "+place_id);
 
         $("#address").show();
         $("#address").val(place_name);
@@ -311,20 +258,20 @@ var initAddress=function(){
         //Get Place lat/lng
         getPlaceDetails(place_id, function(isFetched, data){
             if(isFetched){
-                var latAdd = data.lat;
-                var lngAdd = data.lng;
+                latAdd = data.lat;
+                lngAdd = data.lng;
 
                 $('#lat').val(latAdd);
                 $('#lng').val(lngAdd);
 
 
-                var mapAddress = new google.maps.Map(document.getElementById('new_address_map'), {
+                mapAddress = new google.maps.Map(document.getElementById('new_address_map'), {
                     zoom: 17,
                     center: new google.maps.LatLng(data.lat, data.lng)
                 });
 
                 var markerDataAddress = new google.maps.LatLng(data.lat, data.lng);
-                var markerAddress = new google.maps.Marker({
+                markerAddress = new google.maps.Marker({
                     position: markerDataAddress,
                     map: mapAddress,
                     icon: start,
@@ -335,8 +282,8 @@ var initAddress=function(){
                     var data = new google.maps.LatLng(event.latLng.lat(), event.latLng.lng());
                     markerAddress.setPosition(data);
 
-                    var latAdd = event.latLng.lat();
-                    var lngAdd = event.latLng.lng();
+                    latAdd = event.latLng.lat();
+                    lngAdd = event.latLng.lng();
 
                     $('#lat').val(latAdd);
                     $('#lng').val(lngAdd);
@@ -347,7 +294,7 @@ var initAddress=function(){
     });
 
     //Save on click for location
-    $("#submitNewAddress").on("click",function() {
+    $("#submitNewAddress").click(function() {
         var address_name = $("#address").val();
         var address_number = $("#address_number").val();
         var number_apartment = $("#number_apartment").val();
@@ -357,19 +304,6 @@ var initAddress=function(){
 
         var lat = $("#lat").val();
         var lng = $("#lng").val();
-
-        var doSubmit=true;
-        var message="";
-        if(address_number.length<1){
-            doSubmit=false;
-            message+="\nPlease enter address number";
-        }
-
-        if(!doSubmit){
-            alert(message);
-            return false;
-        }else{
-
 
         $.ajaxSetup({
                 headers: {
@@ -391,13 +325,13 @@ var initAddress=function(){
                 },
                 success:function(response){
                     if(response.status){
+                        //location.replace(response.success_url);
                         window.location.reload();
                     }
                 }, error: function (response) {
+                    //return callback(false, response.responseJSON.errMsg);
                 }
             })
-        }
-
     });
 }
 
@@ -423,6 +357,7 @@ function getPlaceDetails(place_id, callback){
                 return callback(true, response.result)
             }
         }, error: function (response) {
+            //return callback(false, response.responseJSON.errMsg);
         }
     })
 }

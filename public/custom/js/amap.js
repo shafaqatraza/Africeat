@@ -1,4 +1,3 @@
-"use strict";
 var map, infoWindow, marker, lat, lng;
 function initMap() {
     map = new google.maps.Map(document.getElementById('map2'), {center: {lat: -34.397, lng: 150.644}, zoom: 15 });
@@ -11,24 +10,28 @@ function initMap() {
 
             map.setCenter(pos);
             marker.setPosition(pos);
+            //changeLocation(pos.lat, pos.lng);
             lat = position.coords.latitude;
             lng = position.coords.longitude;
         }, function() {
-                    
+                     // handleLocationError(true, infoWindow, map.getCenter());
         });
     } else {
+                    // Browser doesn't support Geolocation
+                    //handleLocationError(false, infoWindow, map.getCenter());
     }
 
     map.addListener('click', function(event) {
         var currPos = new google.maps.LatLng(event.latLng.lat(),event.latLng.lng());
         marker.setPosition(currPos);
+        //changeLocation(event.latLng.lat(), event.latLng.lng());
 
         lat = event.latLng.lat()
         lng = event.latLng.lng();
     });
 }
 
-$("#submitNewAddress").on("click",function() {
+$("#submitNewAddress").click(function() {
     saveLocation(lat, lng);
 });
 
@@ -57,6 +60,7 @@ function saveLocation(lat, lng){
                     window.location.href = "/addresses";
                 }
             }, error: function (response) {
+               //alert(response.responseJSON.errMsg);
             }
         })
     }

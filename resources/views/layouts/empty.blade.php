@@ -23,49 +23,39 @@ Coded by www.creative-tim.com
     <meta property="og:image" content="{{ config('global.site_logo') }}">
     <title>{{ config('global.site_name','FoodTiger') }}</title>
 
-    @notifyCss
-
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
-
+    <link href="https://use.fontawesome.com/releases/v5.0.6/css/all.css" rel="stylesheet">
+    <!-- Nucleo Icons -->
+    <link href="{{ asset('argonfront') }}/css/nucleo-icons.css" rel="stylesheet" />
+    <link href="{{ asset('argonfront') }}/css/nucleo-svg.css" rel="stylesheet" />
     <!-- Font Awesome Icons -->
     <link href="{{ asset('argonfront') }}/css/font-awesome.css" rel="stylesheet" />
     <link href="{{ asset('argonfront') }}/css/nucleo-svg.css" rel="stylesheet" />
-    <link href="{{ asset('argonfront') }}/css/nucleo-icons.css" rel="stylesheet">
-
     <!-- CSS Files -->
-    <link href="{{ asset('argonfront') }}/css/argon-design-system.min.css?v=1.4.0" rel="stylesheet" />
+    <link href="{{ asset('argonfront') }}/css/argon-design-system.css?v=1.4.0" rel="stylesheet" />
 
     <!-- Custom CSS -->
     <link type="text/css" href="{{ asset('custom') }}/css/custom.css" rel="stylesheet">
-
     <!-- Select2 -->
     <link type="text/css" href="{{ asset('custom') }}/css/select2.min.css" rel="stylesheet">
-  
 
-<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-<link rel="manifest" href="/site.webmanifest">
-<link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
-<meta name="msapplication-TileColor" content="#da532c">
-<meta name="theme-color" content="#ffffff">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo env('GOOGLE_ANALYTICS',''); ?>"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
 
-<!-- Custom CSS defined by admin -->
-<link type="text/css" href="{{ asset('byadmin') }}/front.css" rel="stylesheet">
+        gtag('config', '<?php echo env('GOOGLE_ANALYTICS',''); ?>');
+    </script>
 
+  @yield('head')
 </head>
 
 <body class="">
-    
-
-
-
-
-    <!-- End Navbar -->
-
-
     <div class="wrapper">
+        <br/><br/><br/>
         @yield('content')
     </div>
 
@@ -74,14 +64,26 @@ Coded by www.creative-tim.com
     <script src="{{ asset('argonfront') }}/js/core/popper.min.js" type="text/javascript"></script>
     <script src="{{ asset('argonfront') }}/js/core/bootstrap.min.js" type="text/javascript"></script>
     <script src="{{ asset('argonfront') }}/js/plugins/perfect-scrollbar.jquery.min.js"></script>
-
     <!--  Plugin for Switches, full documentation here: http://www.jque.re/plugins/version3/bootstrap.switch/ -->
     <script src="{{ asset('argonfront') }}/js/plugins/bootstrap-switch.js"></script>
+    <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+    <script src="{{ asset('argonfront') }}/js/plugins/nouislider.min.js" type="text/javascript"></script>
+    <script src="{{ asset('argonfront') }}/js/plugins/moment.min.js"></script>
+    <script src="{{ asset('argonfront') }}/js/plugins/datetimepicker.js" type="text/javascript"></script>
+    <script src="{{ asset('argonfront') }}/js/plugins/bootstrap-datepicker.min.js"></script>
+    <!-- Control Center for Argon UI Kit: parallax effects, scripts for the example pages etc -->
 
-     <!-- Control Center for Argon UI Kit: parallax effects, scripts for the example pages etc -->
     <script src="{{ asset('argonfront') }}/js/argon-design-system.js?v=1.2.0" type="text/javascript"></script>
 
+    <!-- SELECT2 -->
+    <script src="{{ asset('custom') }}/js/select2.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 
+    <!-- Import Vue -->
+    <script src="https://unpkg.com/vue@2.1.6/dist/vue.js"></script>
+    <!-- Import AXIOS --->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    @yield('js')
 </body>
 
 </html>

@@ -2,369 +2,412 @@
 
 namespace App\Http\Controllers;
 
-use App\Traits\Fields;
-use App\Items;
-use App\Models\Variants;
-use App\Order;
-use App\Restorant;
-use App\Tables;
-use App\Plans;
-use Carbon\Carbon;
 use Cart;
+use App\Items;
+use App\Restorant;
+use App\Order;
+use Carbon\Carbon;
+
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Cookie;
-use App\Services\ConfChanger;
-use Akaunting\Module\Facade as Module;
-use App\Models\CartStorageModel;
-use Illuminate\Support\Facades\Auth;
+use Akaunting\Money\Currency;
+use Akaunting\Money\Money;
+use App\Models\Variants;
 
 class CartController extends Controller
 {
-    use Fields;
-
-    private function setSessionID($session_id){
-        Cart::session($session_id);
-    }
-
-    public function add(Request $request)
-    {
-        if(in_array("poscloud",config('global.modules',[]))&&Auth::check()&&auth()->user()->hasRole('staff')){
-            //dd('heres');
-            config(['shopping_cart.storage' => \App\Repositories\CartDBStorageRepository::class]); 
-        }
-        
-        if(isset($request->session_id)){
-            $this->setSessionID($request->session_id);
-        }
-    
+    public function add(Request $request){
         $item = Items::find($request->id);
-        $restID = $item->category->restorant->id;
-
-        $restaurant = Restorant::findOrFail($restID);
-        \App\Services\ConfChanger::switchCurrency($restaurant);
-        
+        $restID=$item->category->restorant->id;
 
         //Check if added item is from the same restorant as previus items in cart
         $canAdd = false;
-        if (Cart::getContent()->isEmpty()) {
+        if(Cart::getContent()->isEmpty()){
             $canAdd = true;
-        } else {
+        }else{
             $canAdd = true;
             foreach (Cart::getContent() as $key => $cartItem) {
-                if ($cartItem->attributes->restorant_id.'' != $restID.'') {
+                if($cartItem->attributes->restorant_id."" != $restID.""){
                     $canAdd = false;
                     break;
                 }
             }
         }
 
-        if ($item && $canAdd) {
+        //TODO - check if cart contains, if so, check if restorant is same as pervios one
+
+       // Cart::clear();
+        if($item && $canAdd){
 
             //are there any extras
-            $cartItemPrice = $item->price;
-            $cartItemName = $item->name;
-            $theElement = '';
+            $cartItemPrice=$item->price;
+            $cartItemName=$item->name;
+            $theElement="";
 
             //Is there a varaint
-
             //variantID
-            if ($request->variantID) {
+            if($request->variantID){
                 //Get the variant
-                $variant = Variants::findOrFail($request->variantID);
+                $variant=Variants::findOrFail($request->variantID);
 
-                //Validate is this variant is from the current item
-                if ($variant->item->id == $item->id) {
-                    $cartItemPrice = $variant->price;
-
-                    //For each option, find the option on the
-                    $cartItemName = $item->name.' '.$variant->optionsList;
-                }
+                $cartItemPrice=$variant->price;
+                $cartItemName=$item->name." ".$variant->optionsList;
+                //$theElement.=$value." -- ".$item->extras()->findOrFail($value)->name."  --> ". $cartItemPrice." ->- ";
             }
+
 
             foreach ($request->extras as $key => $value) {
-                $cartItemName .= "\n+ ".$item->extras()->findOrFail($value)->name;
-                $cartItemPrice += $item->extras()->findOrFail($value)->price;
-                $theElement .= $value.' -- '.$item->extras()->findOrFail($value)->name.'  --> '.$cartItemPrice.' ->- ';
+
+                $cartItemName.="\n+ ".$item->extras()->findOrFail($value)->name;
+                $cartItemPrice+=$item->extras()->findOrFail($value)->price;
+                $theElement.=$value." -- ".$item->extras()->findOrFail($value)->name."  --> ". $cartItemPrice." ->- ";
             }
 
-            Cart::add((new \DateTime())->getTimestamp(), $cartItemName, $cartItemPrice, $request->quantity, ['id'=>$item->id, 'variant'=>$request->variantID, 'extras'=>$request->extras, 'restorant_id'=>$restID, 'image'=>$item->icon, 'friendly_price'=>  Money($cartItemPrice, config('settings.cashier_currency'), config('settings.do_convertion'))->format()]);
+
+            Cart::add((new \DateTime())->getTimestamp(), $cartItemName, $cartItemPrice, $request->quantity, array('id'=>$item->id,'variant'=>$request->variantID, 'extras'=>$request->extras,'restorant_id'=>$restID,'image'=>$item->icon,'friendly_price'=>  Money($cartItemPrice, env('CASHIER_CURRENCY','usd'),true)->format() ));
 
             return response()->json([
                 'status' => true,
-                'errMsg' => $theElement,
+                'errMsg' => $theElement
             ]);
-        } else {
+        }else{
             return response()->json([
                 'status' => false,
-                'errMsg' => __("You can't add items from other restaurant!"),
+                'errMsg' => __("You can't add items from other restaurant!")
             ]);
+            //], 401);
         }
     }
 
-    public function getContent()
-    {
-        if(in_array("poscloud",config('global.modules',[]))&&Auth::check()&&auth()->user()->hasRole('staff')){
-            config(['shopping_cart.storage' => \App\Repositories\CartDBStorageRepository::class]); 
-        }
-
-        //In this case, we need to use the cookies for storagee
-        if(isset($_GET['session_id'])){
-            $this->setSessionID($_GET['session_id']);
-        }
-
+    public function getContent(){
+        //Cart::clear();
         return response()->json([
             'data' => Cart::getContent(),
             'total' => Cart::getSubTotal(),
             'status' => true,
-            'errMsg' => '',
+            'errMsg' => ''
         ]);
     }
 
-    public function getContentPOS()
-    {
-        
-        config(['shopping_cart.storage' => \App\Repositories\CartDBStorageRepository::class]); 
-        
+    public function minutesToHours($numMun){
+        $h =(int) ($numMun/60);
+        $min=$numMun%60;
+        if($min<10){
+            $min="0".$min;
+        }
 
-        if(isset($_GET['session_id'])){
-            $this->setSessionID($_GET['session_id']);
+        $time=$h.":".$min;
+        if(env('TIME_FORMAT',"24hours")=="AM/PM"){
+            $time=date("g:i A", strtotime($time));
+        }
+        return $time;
+    }
+
+
+    /*"0_from" => "09:00"
+  "0_to" => "20:00"
+  "1_from" => "09:00"
+  "1_to" => "20:00"
+  "2_from" => "09:00"
+  "2_to" => "20:00"
+  "3_from" => "09:00"
+  "3_to" => "20:00"
+  "4_from" => "09:00"
+  "4_to" => "20:00"
+  "5_from" => "09:00"
+  "5_to" => "17:00"
+  "6_from" => "09:00"
+  "6_to" => "17:00"*/
+
+  /*
+    "0_from" => "9:00 AM"
+  "0_to" => "8:10 PM"
+  "1_from" => "9:00 AM"
+  "1_to" => "8:00 PM"
+  "2_from" => "9:00 AM"
+  "2_to" => "8:00 PM"
+  "3_from" => "9:00 AM"
+  "3_to" => "8:00 PM"
+  "4_from" => "9:00 AM"
+  "4_to" => "8:00 PM"
+  "5_from" => "9:00 AM"
+  "5_to" => "5:00 PM"
+  "6_from" => "9:00 AM"
+  "6_to" => "5:00 PM"
+   */
+
+    public function getMinutes($time){
+        $parts=explode(':',$time);
+        return ((int)$parts[0])*60+(int)$parts[1];
+    }
+
+
+
+    public function getTimieSlots($hours){
+
+        $ourDateOfWeek=[6,0,1,2,3,4,5][date('w')];
+        $restaurantOppeningTime=$this->getMinutes(date("G:i", strtotime($hours[$ourDateOfWeek."_from"])));
+        $restaurantClosingTime=$this->getMinutes(date("G:i", strtotime($hours[$ourDateOfWeek."_to"])));
+
+
+        //Interval
+        $intervalInMinutes=env('DELIVERY_INTERVAL_IN_MINUTES',30);
+
+        //Generate thintervals from
+        $currentTimeInMinutes= Carbon::now()->diffInMinutes(Carbon::today());
+        $from= $currentTimeInMinutes>$restaurantOppeningTime?$currentTimeInMinutes:$restaurantOppeningTime;//Workgin time of the restaurant or current time,
+
+
+
+        //print_r('now: '.$from);
+        //To have clear interval
+        $missingInterval=$intervalInMinutes-($from%$intervalInMinutes); //21
+
+        //print_r('<br />missing: '.$missingInterval);
+
+        //Time to prepare the order in minutes
+        $timeToPrepare=env('TIME_TO_PREPARE_ORDER_IN_MINUTES',0); //30
+
+        //First interval
+        $from+= $timeToPrepare<=$missingInterval?$missingInterval:($intervalInMinutes-(($from+$timeToPrepare)%$intervalInMinutes))+$timeToPrepare;
+
+        //$from+=$missingInterval;
+
+        //Generate thintervals to
+        $to= $restaurantClosingTime;//Closing time of the restaurant or current time
+
+
+        $timeElements=[];
+        for ($i=$from; $i <= $to ; $i+=$intervalInMinutes) {
+            array_push($timeElements,$i);
+        }
+        //print_r("<br />");
+        //print_r($timeElements);
+
+
+
+        $slots=[];
+        for ($i=0; $i < count($timeElements)-1 ; $i++) {
+            array_push($slots,[$timeElements[$i],$timeElements[$i+1]]);
+        }
+
+        //print_r("<br />SLOTS");
+        //print_r($slots);
+
+
+        //INTERVALS TO TIME
+        $formatedSlots=[];
+        for ($i=0; $i < count($slots) ; $i++) {
+            $key=$slots[$i][0]."_".$slots[$i][1];
+            $value=$this->minutesToHours($slots[$i][0])." - ".$this->minutesToHours($slots[$i][1]);
+            $formatedSlots[$key]=$value;
+            //array_push($formatedSlots,[$key=>$value]);
+        }
+
+
+
+        return($formatedSlots);
+
+
+    }
+
+    public function getRestorantHours($restorantID){
+          //Create all the time slots
+          //The restaurant
+          $restaurant=Restorant::findOrFail($restorantID);
+
+          $timeSlots=$restaurant->hours?$this->getTimieSlots($restaurant->hours->toArray()):[];
+
+          //Modified time slots for app
+          $timeSlotsForApp=[];
+          foreach ($timeSlots as $key => $timeSlotsTitle) {
+             array_push($timeSlotsForApp,array('id'=>$key,'title'=>$timeSlotsTitle));
+          }
+
+          //Working hours
+          $ourDateOfWeek=[6,0,1,2,3,4,5][date('w')];
+
+          $format="G:i";
+          if(env('TIME_FORMAT',"24hours")=="AM/PM"){
+              $format="g:i A";
+          }
+
+
+          $openingTime=date($format, strtotime($restaurant->hours[$ourDateOfWeek."_from"]));
+          $closingTime=date($format, strtotime( $restaurant->hours[$ourDateOfWeek."_to"]));
+
+          $params = [
+            'restorant' => $restaurant,
+            'timeSlots' => $timeSlotsForApp,
+            'openingTime' => $restaurant->hours&&$restaurant->hours[$ourDateOfWeek."_from"]?$openingTime:null,
+            'closingTime' => $restaurant->hours&&$restaurant->hours[$ourDateOfWeek."_to"]?$closingTime:null,
+         ];
+
+         if($restaurant){
+            return response()->json([
+                'data' => $params,
+                'status' => true,
+                'errMsg' => ''
+            ]);
         }else{
             return response()->json([
                 'status' => false,
-                'errMsg' => 'Session is not started yet',
+                'errMsg' => 'Restorants not found!'
             ]);
         }
-        
 
-        $cs=CartStorageModel::where('id',$_GET['session_id']."_cart_items")->first();
-
-        return response()->json([
-            'data' => Cart::getContent(),
-            'config'=> $cs?$cs->getAllConfigs():[],
-            'id'=>$_GET['session_id'],
-            'total' => Cart::getSubTotal(),
-            'status' => true,
-            'errMsg' => '',
-        ]);
     }
 
-    public function cart()
-    {
-        
-        if(isset($_GET['session_id'])){
-            $this->setSessionID($_GET['session_id']);
+    /*public function calculateDistance($lat1, $lon1, $lat2, $lon2, $unit) {
+        if (($lat1 == $lat2) && ($lon1 == $lon2)) {
+          return 0;
+        }
+        else {
+          $theta = $lon1 - $lon2;
+          $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2)) +  cos(deg2rad($lat1)) * cos(deg2rad($lat2)) * cos(deg2rad($theta));
+          $dist = acos($dist);
+          $dist = rad2deg($dist);
+          $miles = $dist * 60 * 1.1515;
+          $unit = strtoupper($unit);
+
+          if ($unit == "K") {
+            return ($miles * 1.609344);
+          } else if ($unit == "N") {
+            return ($miles * 0.8684);
+          } else {
+            return $miles;
+          }
+        }
+    }*/
+
+    function calculateDistance($latitude1, $longitude1, $latitude2, $longitude2, $unit) {
+        $theta = $longitude1 - $longitude2;
+        $distance = (sin(deg2rad($latitude1)) * sin(deg2rad($latitude2))) + (cos(deg2rad($latitude1)) * cos(deg2rad($latitude2)) * cos(deg2rad($theta)));
+        $distance = acos($distance);
+        $distance = rad2deg($distance);
+        $distance = $distance * 60 * 1.1515;
+        switch($unit) {
+          case 'Mi':
+            break;
+          case 'K' :
+            $distance = $distance * 1.609344;
+        }
+        return (round($distance,2));
+      }
+
+    public function cart(){
+        $restorantID=null;
+        foreach (Cart::getContent() as $key => $cartItem) {
+            $restorantID=$cartItem->attributes->restorant_id;
+            break;
         }
 
+        //The restaurant
+        $restaurant=Restorant::findOrFail($restorantID);
 
-        $fieldsToRender=[];
-        if(strlen(config('global.order_fields'))>10){
-            $fieldsToRender=$this->convertJSONToFields(json_decode(config('global.order_fields'),true)); 
-        }
-        $isEmpty = false;
-        if (Cart::getContent()->isEmpty()) {
-            $isEmpty = true;
-        }
-
-        if(!$isEmpty){
-            //Cart is not empty
-            $restorantID = null;
-            foreach (Cart::getContent() as $key => $cartItem) {
-                $restorantID = $cartItem->attributes->restorant_id;
-                break;
-            }
-
-            
-
-            //The restaurant
-            $restaurant = Restorant::findOrFail($restorantID);
-
-            //Set config based on restaurant
-            config(['app.timezone' => $restaurant->getConfig('time_zone',config('app.timezone'))]);
-
-            
-
-            $enablePayments=true;
-            if(config('app.isqrsaas')){
-                
-
-                //In case, we use vendor defined Stripe, we need to check if keys are present
-                if(config('settings.stripe_useVendor')){
-                    if($restaurant->getConfig('stripe_enable')=="true"){
-                        //We have stripe
-                        config(['settings.enable_stripe' => true]);
-                        config(['settings.stripe_key' => $restaurant->getConfig('stripe_key')]);
-                        config(['settings.stripe_secret' => $restaurant->getConfig('stripe_secret')]);
-                        config(['cashier.key' => $restaurant->getConfig('stripe_key')]);
-                        config(['cashier.secret' => $restaurant->getConfig('stripe_secret')]);
-
-                    }else{
-                        //Stripe for this vendor is disabled
-                        config(['settings.enable_stripe' => false]);
-                    }
-                }
-            }
-
-            //Change currency
-            \App\Services\ConfChanger::switchCurrency($restaurant);
-
-            //Create all the time slots
-            $timeSlots = $this->getTimieSlots($restaurant);
-
-           
-            //user addresses
-            $addresses = [];
-            if (config('app.isft')) {
-                $addresses = $this->getAccessibleAddresses($restaurant, auth()->user()->addresses->reverse());
-            }
-
-            $tables = Tables::where('restaurant_id', $restaurant->id)->get();
-            $tablesData = [];
-            foreach ($tables as $key => $table) {
-                $tablesData[$table->id] = $table->full_name;
-            }
-
-
-            $extraPayments=[];
-            foreach (Module::all() as $key => $module) {
-                if($module->get('isPaymentModule')){
-                    array_push($extraPayments,$module->get('alias'));
-                }
-            }
-  
-            $businessHours=$restaurant->getBusinessHours();
-            $now = new \DateTime('now');
-
-            $formatter = new \IntlDateFormatter(config('app.locale'), \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT);
-            $formatter->setPattern(config('settings.datetime_workinghours_display_format_new'));
-        
-            //Table ID
-            $tid = Cookie::get('tid') ? Cookie::get('tid') :null;
-            if($tid==""){$tid=null;}
-            $tables=['ftype'=>'select', 'name'=>'', 'id'=>'table_id', 'placeholder'=>'Select table', 'data'=>$tablesData, 'required'=>true];
-            $tableName="";
-            if($tid!=null){
-                $tables['value']=$tid;
-                $tableName=Tables::findOrFail($tid)->full_name;
-            }
-
-
-            $params = [
-                'enablePayments'=>$enablePayments,
-                'title' => 'Shopping Cart Checkout',
-                'tables' =>  $tables,
-                'restorant' => $restaurant,
-                'timeSlots' => $timeSlots,
-                'openingTime' => $businessHours->isClosed()?$formatter->format($businessHours->nextOpen($now)):null,
-                'closingTime' => $businessHours->isOpen()?$formatter->format($businessHours->nextClose($now)):null,
-                'addresses' => $addresses,
-                'fieldsToRender'=>$fieldsToRender,
-                'extraPayments'=>$extraPayments,
-                'tid'=>$tid,
-                'tableName'=>$tableName
-            ];
-
-            return view('cart')->with($params);
-        }else{
-            //Cart is empty
-            if(config('app.isft')) {
-                return redirect()->route('front')->withError('Your cart is empty!');
-            }else{
-                $previousOrders = Cookie::get('orders') ? Cookie::get('orders') : '';
-                $previousOrderArray = array_filter(explode(',', $previousOrders));
-
-                if(count($previousOrderArray) > 0){
-                    foreach($previousOrderArray as $orderId){
-                        $restorant = Order::where(['id'=>$orderId])->get()->first()->restorant;
-                       
-                        $restorantInfo = $this->getRestaurantInfo($restorant, $previousOrderArray);
-
-                        return view('restorants.show', [
-                            'restorant' => $restorantInfo['restorant'],
-                            'openingTime' => $restorantInfo['openingTime'],
-                            'closingTime' => $restorantInfo['closingTime'],
-                            'usernames' => $restorantInfo['usernames'],
-                            'canDoOrdering'=>$restorantInfo['canDoOrdering'],
-                            'currentLanguage'=>$restorantInfo['currentLanguage'],
-                            'showLanguagesSelector'=>$restorantInfo['showLanguagesSelector'],
-                            'hasGuestOrders'=>$restorantInfo['hasGuestOrders'],
-                            'fields'=>$restorantInfo['fields'],
-                        ])->withError(__('Your cart is empty!'));
-                    }
-                }else{
-                    return redirect()->route('front')->withError('Your cart is empty!');
-                }                
-            }
-        }
-    }
-
-    public function getRestaurantInfo($restorant, $previousOrderArray)
-    {
-        //In QRsaas with plans, we need to check if they can add new items.
-        $currentPlan = Plans::findOrFail($restorant->user->mplanid());
-        $canDoOrdering = $currentPlan->enable_ordering == 1;
-
-        //ratings usernames
-        $usernames = [];
-        if ($restorant && $restorant->ratings) {
-            foreach ($restorant->ratings as $rating) {
-                $user = User::where('id', $rating->user_id)->get()->first();
-
-                if (! array_key_exists($user->id, $usernames)) {
-                    $new_obj = (object) [];
-                    $new_obj->name = $user->name;
-
-                    $usernames[$user->id] = (object) $new_obj;
-                }
-            }
-        }
+        //Create all the time slots
+        $timeSlots=$restaurant->hours?$this->getTimieSlots($restaurant->hours->toArray()):[];
 
         //Working hours
-        $ourDateOfWeek = date('N') - 1;
+        $ourDateOfWeek=[6,0,1,2,3,4,5][date('w')];
 
-        $format = 'G:i';
-        if (config('settings.time_format') == 'AM/PM') {
-            $format = 'g:i A';
+        $format="G:i";
+        if(env('TIME_FORMAT',"24hours")=="AM/PM"){
+            $format="g:i A";
         }
 
-        //tables
-        $tables = Tables::where('restaurant_id', $restorant->id)->get();
-        $tablesData = [];
-        foreach ($tables as $key => $table) {
-            $tablesData[$table->id] = $table->restoarea ? $table->restoarea->name.' - '.$table->name : $table->name;
+
+        $openingTime=date($format, strtotime($restaurant->hours[$ourDateOfWeek."_from"]));
+        $closingTime=date($format, strtotime($restaurant->hours[$ourDateOfWeek."_to"]));
+
+        //user addresses
+        $polygon = json_decode(json_encode($restaurant->radius));
+        $numItems = sizeof($restaurant->radius);
+
+        $addresses = [];
+        if(auth()->user()->addresses){
+            foreach(auth()->user()->addresses->reverse() as $address){
+
+                $point = json_decode('{"lat": '.$address->lat.', "lng":'.$address->lng.'}');
+
+                if(!array_key_exists($address->id, $addresses)){
+                    $new_obj = (object) [];
+                    $new_obj->id = $address->id;
+                    $new_obj->address = $address->address;
+
+                    if(isset($polygon[0])&&$this->withinArea($point,$polygon,$numItems)){
+                        $new_obj->inRadius = true;
+                    }else{
+                        $new_obj->inRadius = false;
+                    }
+
+                    if(env('ENABLE_COST_PER_DISTANCE', false) && env('COST_PER_KILOMETER', 1)){
+
+                        $distance = intval(round($this->calculateDistance($address->lat, $address->lng, $restaurant->lat, $restaurant->lng, "K")));
+                        $new_obj->cost_per_km=floor($distance)*floatval(env('COST_PER_KILOMETER'));
+                       // $new_obj->cost_per_km = @money( $distance * intval(env('COST_PER_KILOMETER')), env('CASHIER_CURRENCY','usd'),true);
+                    }
+
+                    $addresses[$address->id] = (object)$new_obj;
+                }
+
+                /*if(isset($polygon[0])&&$this->withinArea($point,$polygon,$numItems)){
+                    if(!array_key_exists($address->id, $addresses)){
+                        $new_obj = (object) [];
+                        $new_obj->id = $address->id;
+                        $new_obj->address = $address->address;
+
+                        if(env('ENABLE_COST_PER_DISTANCE', false) && env('COST_PER_KILOMETER', 1)){
+
+                            $distance = intval(round($this->calculateDistance($address->lat, $address->lng, $restaurant->lat, $restaurant->lng, "K")));
+                            $new_obj->cost_per_km=floor($distance)*floatval(env('COST_PER_KILOMETER'));
+                           // $new_obj->cost_per_km = @money( $distance * intval(env('COST_PER_KILOMETER')), env('CASHIER_CURRENCY','usd'),true);
+                        }
+                        $addresses[$address->id] = (object)$new_obj;
+                    }
+                }*/
+            }
         }
 
-        //Change Language
-        ConfChanger::switchLanguage($restorant);
-
-        //Change currency
-        ConfChanger::switchCurrency($restorant);
-
-        $currentEnvLanguage = isset(config('config.env')[2]['fields'][0]['data'][config('app.locale')]) ? config('config.env')[2]['fields'][0]['data'][config('app.locale')] : 'UNKNOWN';
-
-        $businessHours=$restorant->getBusinessHours();
-        $now = new \DateTime('now');
-
-        $formatter = new \IntlDateFormatter(config('app.locale'), \IntlDateFormatter::SHORT, \IntlDateFormatter::SHORT);
-        $formatter->setPattern(config('settings.datetime_workinghours_display_format_new'));
-
-        return  [
-            'restorant' => $restorant,
-            'openingTime' => $businessHours->isClosed()?$formatter->format($businessHours->nextOpen($now)):null,
-            'closingTime' => $businessHours->isOpen()?$formatter->format($businessHours->nextClose($now)):null,
-            'usernames' => $usernames,
-            'canDoOrdering'=>$canDoOrdering,
-            'currentLanguage'=>$currentEnvLanguage,
-            'showLanguagesSelector'=>env('ENABLE_MILTILANGUAGE_MENUS', false) && $restorant->localmenus()->count() > 1,
-            'hasGuestOrders'=>count($previousOrderArray) > 0,
-            'fields'=>[['class'=>'col-12', 'classselect'=>'noselecttwo', 'ftype'=>'select', 'name'=>'Table', 'id'=>'table_id', 'placeholder'=>'Select table', 'data'=>$tablesData, 'required'=>true]],
+        $params = [
+            'title' => 'Shopping Cart Checkout',
+            'restorant' => $restaurant,
+            'timeSlots' => $timeSlots,
+            'openingTime' => $restaurant->hours&&$restaurant->hours[$ourDateOfWeek."_from"]?$openingTime:null,
+            'closingTime' => $restaurant->hours&&$restaurant->hours[$ourDateOfWeek."_to"]?$closingTime:null,
+            'addresses' => $addresses
         ];
+
+        //Open for all
+        return view('cart')->with($params);
     }
 
-    public function clear(Request $request)
+    private function withinArea($point, $polygon,$n)
     {
-        if(isset($request->session_id)){
-            $this->setSessionID($request->session_id);
+        if($polygon[0] != $polygon[$n-1])
+            $polygon[$n] = $polygon[0];
+        $j = 0;
+        $oddNodes = false;
+        $x = $point->lng;
+        $y = $point->lat;
+        for ($i = 0; $i < $n; $i++)
+        {
+            $j++;
+            if ($j == $n)
+            {
+                $j = 0;
+            }
+            if ((($polygon[$i]->lat < $y) && ($polygon[$j]->lat >= $y)) || (($polygon[$j]->lat < $y) && ($polygon[$i]->lat >=$y)))
+            {
+                if ($polygon[$i]->lng + ($y - $polygon[$i]->lat) / ($polygon[$j]->lat - $polygon[$i]->lat) * ($polygon[$j]->lng - $polygon[$i]->lng) < $x)
+                {
+                    $oddNodes = !$oddNodes;
+                }
+            }
         }
+        return $oddNodes;
+    }
+
+    public function clear(Request $request){
 
         //Get the client_id from address_id
 
@@ -383,79 +426,63 @@ class CartController extends Controller
         }
 
         //Find first status id,
+        ///$oreder->stauts()->attach($status->id,['user_id'=>auth()->user()->id]);
         Cart::clear();
-
         return redirect()->route('front')->withStatus(__('Cart clear.'));
+        //return back()->with('success',"The shopping cart has successfully beed added to the shopping cart!");;
     }
 
+
     /**
+
      * Create a new controller instance.
 
      *
 
      * @return void
+
      */
-    public function remove(Request $request)
-    {
 
-        if(isset($request->session_id)){
-            $this->setSessionID($request->session_id);
-        }
-
+    public function remove(Request $request){
         Cart::remove($request->id);
-
         return response()->json([
             'status' => true,
-            'errMsg' => '',
+            'errMsg' => ''
         ]);
     }
 
     /**
-     * Makes general api resonse.
+     * Makes general api resonse
      */
-    private function generalApiResponse()
-    {
+    private function generalApiResponse(){
         return response()->json([
             'status' => true,
-            'errMsg' => '',
+            'errMsg' => ''
         ]);
     }
 
     /**
-     * Updates cart.
+     * Updates cart
      */
-    private function updateCartQty($howMuch, $item_id)
-    {
-        if(isset($_GET['session_id'])){
-            $this->setSessionID($_GET['session_id']);
-        }
-
-        Cart::update($item_id, ['quantity' => $howMuch]);
-
+    private function updateCartQty($howMuch,$item_id){
+        Cart::update($item_id, array('quantity' => $howMuch));
         return $this->generalApiResponse();
     }
 
-    /**
-     * Increase cart.
-     */
-    public function increase($id)
-    {
-        if(isset($_GET['session_id'])){
-            $this->setSessionID($_GET['session_id']);
-        }
 
-        return $this->updateCartQty(1, $id);
+    /**
+     * Increase cart
+     */
+    public function increase($id){
+       return $this->updateCartQty(1,$id);
     }
 
     /**
-     * Decrese cart.
+     * Decrese cart
      */
-    public function decrease($id)
-    {
-        if(isset($_GET['session_id'])){
-            $this->setSessionID($_GET['session_id']);
-        }
-        
-        return $this->updateCartQty(-1, $id);
+    public function decrease($id){
+        return $this->updateCartQty(-1,$id);
     }
+
 }
+

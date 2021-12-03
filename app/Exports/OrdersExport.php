@@ -13,32 +13,30 @@ class OrdersExport implements FromArray, WithHeadings
     public function headings(): array
     {
         return [
-            'order_id',
-            'restaurant_name',
-            'restaurant_id',
-            'created',
-            'last_status',
-            'client_name',
-            'client_id',
-            'table_name',
-            'table_id',
-            'area_name',
-            'area_id',
-            'address',
-            'address_id',
-            'driver_name',
-            'driver_id',
-            'order_value',
-            'order_delivery',
-            'order_total',
+            "order_id",
+            "restaurant_name",
+            "restaurant_id",
+            "created",
+            "last_status",
+            "client_name",
+            "client_id",
+            "address",
+            "address_id",
+            "driver_name",
+            "driver_id",
+            "order_value",
+            "order_delivery",
+            "order_total",
             'payment_method',
             'srtipe_payment_id',
             'order_fee',
             'restaurant_fee',
             'restaurant_static_fee',
-            'vat',
+            'vat'
         ];
     }
+
+
 
     public function __construct(array $orders)
     {

@@ -50,7 +50,7 @@
         @endif
     </div>
 
-    @if(config('settings.is_demo') && config('settings.enable_stripe'))
+    @if(env('IS_DEMO', false) && env('ENABLE_STRIPE', false))
     <br/>
     <div class="form-group">
         <label class="form-control-label" for="comment">{{ __('Demo Stripe Credentials') }}</label>
@@ -109,21 +109,21 @@
 
         <h4>{{ __('Payment method') }}</h4>
         <br/>
-        @if (!config('settings.hide_cod'))
+        @if (!env('HIDE_COD',false))
             <div class="custom-control custom-radio mb-3">
-                <input name="paymentType" class="custom-control-input" id="cashOnDelivery" type="radio" value="cod" {{ config('settings.default_payment')=="cod"?"checked":""}}>
+                <input name="paymentType" class="custom-control-input" id="cashOnDelivery" type="radio" value="cod" {{ env('DEFAULT_PAYMENT','cod')=="cod"?"checked":""}}>
                 <label class="custom-control-label" for="cashOnDelivery">{{ __('Cash on delivery') }}</label>
             </div>
         @endif
-        @if (config('settings.stripe_key')&&config('settings.enable_stripe'))
+        @if (env('STRIPE_KEY',false)&&env('ENABLE_STRIPE',false))
             <div class="custom-control custom-radio mb-3">
-                <input name="paymentType" class="custom-control-input" id="paymentStripe" type="radio" value="stripe" {{ config('settings.default_payment')=="stripe"?"checked":""}}>
+                <input name="paymentType" class="custom-control-input" id="paymentStripe" type="radio" value="stripe" {{ env('DEFAULT_PAYMENT','cod')=="stripe"?"checked":""}}>
                 <label class="custom-control-label" for="paymentStripe">{{ __('Pay with card') }}</label>
             </div>
         @endif
-        @if (config('settings.stripe_key')&&config('settings.enable_stripe_ideal'))
+        @if (env('STRIPE_KEY',false)&&env('ENABLE_STRIPE_IDEAL',false))
             <div class="custom-control custom-radio mb-3">
-                <input name="paymentType" class="custom-control-input" id="paymentIdeal" type="radio" value="ideal" {{ config('settings.default_payment')=="ideal"?"checked":""}}>
+                <input name="paymentType" class="custom-control-input" id="paymentIdeal" type="radio" value="ideal" {{ env('DEFAULT_PAYMENT','cod')=="ideal"?"checked":""}}>
                 <label class="custom-control-label" for="paymentIdeal">{{ __('Pay via iDeal') }}</label>
             </div>
         @endif
@@ -134,8 +134,8 @@
 
 
 
-    @if(count(auth()->user()->addresses)&&!config('settings.hide_cod'))
-        <div class="text-center" id="totalSubmitCOD"  style="display: {{ config('settings.default_payment')=="cod"&&!config('settings.hide_cod')?"block":"none"}};" >
+    @if(count(auth()->user()->addresses)&&!env('HIDE_COD',false))
+        <div class="text-center" id="totalSubmitCOD"  style="display: {{ env('DEFAULT_PAYMENT','cod')=="cod"&&!env('HIDE_COD',false)?"block":"none"}};" >
             <button v-if="totalPrice" type="submit" class="btn btn-success mt-4">{{ __('Place order') }}</button>
         </div>
     @endif
@@ -145,8 +145,8 @@
 @endif
 
 
-@if (config('settings.stripe_key')&&config('settings.enable_stripe'))
-<form action="/charge" method="post" id="stripe-payment-form" style="display: {{ config('settings.default_payment')=="stripe"?"block":"none"}};"   >
+@if (env('STRIPE_KEY',false)&&env('ENABLE_STRIPE',false))
+<form action="/charge" method="post" id="stripe-payment-form" style="display: {{ env('DEFAULT_PAYMENT','cod')=="stripe"?"block":"none"}};"   >
 
     <div style="width: 30em" class="form-group{{ $errors->has('name') ? ' has-danger' : '' }}">
         <input name="name" id="name" type="text" class="form-control{{ $errors->has('name') ? ' is-invalid' : '' }}" placeholder="{{ __( 'Name on card' ) }}" value="{{auth()->user()->name}}" required>
@@ -179,8 +179,8 @@
 @endif
 
 
-@if (config('settings.stripe_key')&&config('settings.enable_stripe_ideal'))
-<form id="ideal-payment-form" style="display: {{ config('settings.default_payment')=="ideal"?"block":"none"}};">
+@if (env('STRIPE_KEY',false)&&env('ENABLE_STRIPE_IDEAL',true))
+<form id="ideal-payment-form" style="display: {{ env('DEFAULT_PAYMENT','cod')=="ideal"?"block":"none"}};">
 
     <div style="width: 30em" class="form-group{{ $errors->has('name') ? ' has-danger' : '' }}">
         <input name="name" id="name-ideal" type="text" class="form-control{{ $errors->has('name') ? ' is-invalid' : '' }}" placeholder="{{ __( 'Name on card' ) }}" value="{{auth()->user()->name}}" required>
@@ -213,12 +213,11 @@
 
   @section('js')
     <script async defer
-        src= "https://maps.googleapis.com/maps/api/js?key=<?php echo config('settings.google_maps_api_key'); ?>">
+        src= "https://maps.googleapis.com/maps/api/js?key=<?php echo env('GOOGLE_MAPS_API_KEY',''); ?>">
     </script>
     <script src="{{ asset('custom') }}/js/new_address.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
     <script type="text/javascript">
-    "use strict";
      window.onload?window.onload():console.log("No other windowonload foound");
      window.onload = function () {
         $('input:radio[name="paymentType"]').change(
@@ -246,7 +245,7 @@
             });
 
         // Create a Stripe client.
-        var stripe = Stripe("{{ config('settings.stripe_key') }}");
+        var stripe = Stripe("{{ env('STRIPE_KEY',"") }}");
 
         // Create an instance of Elements.
         var elements = stripe.elements();
@@ -281,7 +280,12 @@
             }
             }
 
+        // Create an instance of the idealBank Element.
+        //var idealBank = elements.create('idealBank', options);
 
+        // Add an instance of the idealBank Element into
+        // the `ideal-bank-element` <div>.
+        //idealBank.mount('#ideal-bank-element');
 
         // Create an instance of the card Element.
         var card = elements.create('card', {style: style});
@@ -334,6 +338,45 @@
             // Submit the form
             form.submit();
         }
+
+
+        // Create a source or display an error when the form is submitted.
+        //var formiDeal = document.getElementById('ideal-payment-form');
+
+        /*formiDeal.addEventListener('submit', function(event) {
+            event.preventDefault();
+
+
+            var sourceData = {
+                type: 'ideal',
+                amount: parseInt($("#tootalPricewithDeliveryRaw").val()*100),
+                currency: '{{ env('CASHIER_CURRENCY','usd') }}',
+                owner: {
+                    name: $("#name-ideal").val(),
+                },
+                // Specify the URL to which the customer should be redirected
+                // after paying.
+                redirect: {
+                    return_url: '{{ env('APP_URL') }}'+'/order/ideal/'+$("#addressID").val()+'/'+$("#phone").val()+'/'+$("#comment").val()
+                },
+            };
+
+
+
+
+
+            // Call `stripe.createSource` with the idealBank Element and
+            // additional options.
+            stripe.createSource(idealBank, sourceData).then(function(result) {
+                if (result.error) {
+                    // Inform the customer that there was an error.
+                    $('#error-message-ideal').html(result.error.message)
+                } else {
+                // Redirect the customer to the authorization URL.
+                stripeSourceHandler(result.source);
+                }
+            });
+        });*/
 
         function stripeSourceHandler(source) {
             // Redirect the customer to the authorization URL.

@@ -3,7 +3,7 @@
         <div class="row">
             <div class="col">
                 <h5 class="card-title text-uppercase text-muted mb-0">{{ __($title) }}</h5>
-                <span class="h2 font-weight-bold mb-0">{{ isset($isMoney)&&$isMoney?money($value, config('settings.cashier_currency'),config('settings.do_convertion')):$value }}</span>
+                <span class="h2 font-weight-bold mb-0">{{ isset($isMoney)&&$isMoney?money($value, env('CASHIER_CURRENCY','usd'),true):$value }}</span>
             </div>
             @if (isset($icon))
                 <div class="col-auto">

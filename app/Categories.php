@@ -2,46 +2,19 @@
 
 namespace App;
 
-use App\Models\TranslateAwareModel;
-use Spatie\EloquentSortable\Sortable;
-use Spatie\EloquentSortable\SortableTrait;
-use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Model;
 
-
-class Categories extends TranslateAwareModel implements Sortable
+class Categories extends Model
 {
-
-    use SortableTrait;
-    use SoftDeletes;
-
     protected $table = 'categories';
-    public $translatable = ['name'];
-
-    public $sortable = [
-        'order_column_name' => 'order_index',
-        'sort_when_creating' => true,
-    ];
-
-    //Used for sort grouping
-    public function buildSortQuery()
-    {
-        return static::query()->where('restorant_id', $this->restorant_id);
-    }
-
-    
 
     public function items()
     {
-        return $this->hasMany(\App\Items::class, 'category_id', 'id');
-    }
-
-    public function aitems()
-    {
-        return $this->hasMany(\App\Items::class, 'category_id', 'id')->where(['items.available'=>1]);
+        return $this->hasMany('App\Items','category_id','id');
     }
 
     public function restorant()
     {
-        return $this->belongsTo(\App\Restorant::class);
+        return $this->belongsTo('App\Restorant');
     }
 }

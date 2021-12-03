@@ -3,23 +3,23 @@
         <th scope="col">{{ __('ID') }}</th>
         @hasrole('admin|driver')
             <th scope="col">{{ __('Restaurant') }}</th>
-        @endif
+        @endhasrole
         <th class="table-web" scope="col">{{ __('Created') }}</th>
         <th class="table-web" scope="col">{{ __('Time Slot') }}</th>
         <th class="table-web" scope="col">{{ __('Method') }}</th>
         <th scope="col">{{ __('Last status') }}</th>
         @hasrole('admin|owner|driver')
             <th class="table-web" scope="col">{{ __('Client') }}</th>
-        @endif
-        @if(auth()->user()->hasRole('admin'))
+        @endhasrole
+        @role('admin')
             <th class="table-web" scope="col">{{ __('Address') }}</th>
-        @endif
-        @if(auth()->user()->hasRole('owner'))
+        @endrole
+        @role('owner')
             <th class="table-web" scope="col">{{ __('Items') }}</th>
-        @endif
+        @endrole
         @hasrole('admin|owner')
             <th class="table-web" scope="col">{{ __('Driver') }}</th>
-        @endif
+        @endhasrole
         <th class="table-web" scope="col">{{ __('Price') }}</th>
         <th class="table-web" scope="col">{{ __('Delivery') }}</th>
         @if(auth()->user()->hasRole('admin') || auth()->user()->hasRole('owner') || auth()->user()->hasRole('driver'))
@@ -45,46 +45,65 @@
             </div>
         </div>
     </th>
-    @endif
+    @endhasrole
 
     <td class="table-web">
-        {{ $order->created_at->locale(Config::get('app.locale'))->isoFormat('LLLL') }}
+        {{ $order->created_at->format(env('DATETIME_DISPLAY_FORMAT','d M Y H:i')) }}
     </td>
     <td class="table-web">
         {{ $order->time_formated }}
     </td>
     <td class="table-web">
-        <span class="badge badge-primary badge-pill">{{ $order->getExpeditionType() }}</span>
+        @if ($order->delivery_method==1)
+            <span class="badge badge-primary badge-pill">{{ __('Delivery') }}</span>
+        @else
+            <span class="badge badge-success badge-pill">{{ __('Pickup') }}</span>
+        @endif
+
     </td>
     <td>
-        @include('orders.partials.laststatus')
+        @if($order->status->pluck('id')->last() == "1")
+            <span class="badge badge-primary badge-pill">{{ __($order->status->pluck('name')->last()) }}</span>
+        @elseif($order->status->pluck('id')->last() == "2" || $order->status->pluck('id')->last() == "3")
+            <span class="badge badge-success badge-pill">{{ __($order->status->pluck('name')->last()) }}</span>
+        @elseif($order->status->pluck('id')->last() == "4")
+            <span class="badge badge-default badge-pill">{{ __($order->status->pluck('name')->last()) }}</span>
+        @elseif($order->status->pluck('id')->last() == "5")
+            <span class="badge badge-warning badge-pill">{{ __($order->status->pluck('name')->last()) }}</span>
+        @elseif($order->status->pluck('id')->last() == "6")
+            <span class="badge badge-success badge-pill">{{ __($order->status->pluck('name')->last()) }}</span>
+        @elseif($order->status->pluck('id')->last() == "7")
+            <span class="badge badge-info badge-pill">{{ __($order->status->pluck('name')->last()) }}</span>
+        @elseif($order->status->pluck('id')->last() == "8" || $order->status->pluck('id')->last() == "9")
+            <span class="badge badge-danger badge-pill">{{ __($order->status->pluck('name')->last()) }}</span>
+        @endif
     </td>
     @hasrole('admin|owner|driver')
     <td class="table-web">
        {{ $order->client->name }}
     </td>
-    @endif
-    @if(auth()->user()->hasRole('admin'))
+    @endhasrole
+    @role('admin')
         <td class="table-web">
             {{ $order->address?$order->address->address:"" }}
         </td>
-    @endif
-    @if(auth()->user()->hasRole('owner'))
+    @endrole
+    @role('owner')
         <td class="table-web">
             {{ count($order->items) }}
         </td>
-    @endif
+    @endrole
     @hasrole('admin|owner')
         <td class="table-web">
             {{ !empty($order->driver->name) ? $order->driver->name : "" }}
         </td>
-    @endif
+    @endhasrole
     <td class="table-web">
-        @money( $order->order_price_with_discount, config('settings.cashier_currency'),config('settings.do_convertion'))
+        @money( $order->order_price, env('CASHIER_CURRENCY','usd'),true)
 
     </td>
     <td class="table-web">
-        @money( $order->delivery_price, config('settings.cashier_currency'),config('settings.do_convertion'))
+        @money( $order->delivery_price, env('CASHIER_CURRENCY','usd'),true)
     </td>
     @include('orders.partials.actions.table',['order' => $order ])
 </tr>

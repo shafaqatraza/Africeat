@@ -25,9 +25,9 @@
                                 @if ($item->has_variants)
                                 <div class="form-group">
 
-                                    <label for="variantsSelector">{{ __('Select variant or leave empty for all') }}</label><br />
-                                    <select name="variantsSelector[]" multiple="multiple" class="form-control noselecttwo"  id="variantsSelector">
-                                        @foreach ($item->uservariants as $variant)
+                                    <label for="variantsSelector">{{ __('Select variant or leave empty for all') }}</label>
+                                    <select name="variantsSelector[]" multiple="multiple" class="form-control"  id="variantsSelector">
+                                        @foreach ($item->variants as $variant)
                                             <option id="var{{$variant->id}}" value="{{$variant->id}}">{{ "#".$variant->id.": ".$variant->optionsList }}</option>
                                         @endforeach
                                     </select>
@@ -90,7 +90,6 @@
                                                 </span>
                                             @endif
                                         </div>
-                                        @include('partials.select', ['name'=>"Category",'id'=>"category_id",'placeholder'=>"Select category",'data'=>$categories,'required'=>true, 'value'=>$item->category_id])
                                         <div class="form-group{{ $errors->has('item_description') ? ' has-danger' : '' }}">
                                             <label class="form-control-label" for="item_description">{{ __('Item Description') }}</label>
                                             <textarea id="item_description" name="item_description" class="form-control form-control-alternative{{ $errors->has('item_description') ? ' is-invalid' : '' }}" placeholder="{{ __('Item Description here ... ') }}" value="{{ old('item_description', $item->description) }}" required autofocus rows="3">{{ old('item_description', $item->description) }}</textarea>
@@ -109,20 +108,11 @@
                                                 </span>
                                             @endif
                                         </div>
-                                        @if ($restorant->getConfig('hide_tax_input',"false")!="false")
-                                            <!-- Hidden -->
-                                            @include('partials.input',['id'=>'vat','name'=>__('VAT percentage( calculated into item price )'),'placeholder'=>__('Item VAT percentage'),'value'=>$item->vat==""?$restorant->getConfig('default_tax_value',0):$item->vat,'required'=>false,'type'=>'hidden'])
-                                        @else
-                                            @include('partials.input',['id'=>'vat','name'=>__('VAT percentage( calculated into item price )'),'placeholder'=>__('Item VAT percentage'),'value'=>$item->vat==""?$restorant->getConfig('default_tax_value',0):$item->vat,'required'=>false,'type'=>'number'])
-                                        @endif
-                                        
+                                        @include('partials.input',['id'=>'vat','name'=>__('VAT percentage( calculated into item price )'),'placeholder'=>__('Item VAT percentage'),'value'=>$item->vat,'required'=>false,'type'=>'number'])
                                         <?php $image=['name'=>'item_image','label'=>__('Item Image'),'value'=> $item->logom,'style'=>'width: 290px; height:200']; ?>
                                         @include('partials.images',$image)
                                         @include('partials.toggle',['id'=>'itemAvailable','name'=>'Item available','checked'=>($item->available == 1)])
                                         @include('partials.toggle',['id'=>'has_variants','name'=>'Enable variants','checked'=>($item->has_variants==1)])
-                                        @if($item->has_variants==1)
-                                            @include('partials.toggle',['additionalInfo'=>' Missing variants will have the same price as the item','id'=>'enable_system_variants','name'=>'Enable System Variants (Beta)','checked'=>($item->enable_system_variants==1)])
-                                        @endif
                                     </div>
                                     <div class="col-md-6">
                                     </div>
@@ -206,12 +196,12 @@
                                     <tbody class="list">
                                         <script>
                                             var extras=<?php echo $item->extras->load('variants') ?>;
-                                            
+                                            console.log(extras);
                                         </script>
                                         @foreach($item->extras as $extra)
                                             <tr>
                                                 <th scope="row">{{ $extra->name }}</th>
-                                                <td class="budget">@money( $extra->price, config('settings.cashier_currency'),config('settings.do_convertion'))</td>
+                                                <td class="budget">@money( $extra->price, env('CASHIER_CURRENCY','usd'),true)</td>
                                                 @if ($item->has_variants==1)<td class="budget">{{ $extra->extra_for_all_variants?__('All variants'):__('Selected') }}</td>@endif
                                                 <td class="text-right">
                                                     <div class="dropdown">
@@ -239,11 +229,6 @@
                             </div>
                     </div>
 
-                    <!-- Included views -->
-                    @foreach ($extraViews as $extraView )
-                        @include($extraView['route'])
-                    @endforeach
-
 
             </div>
         </div>
@@ -253,22 +238,21 @@
 
 @section('js')
     <script type="text/javascript">
-        "use strict";
         function setExtrasId(id){
 
 
             //Remove all seleted
-            
-            
+            //$("variantsSelector").val([]);
+            //$("option:selected").prop("selected", false);
 
             $('option', $('#variantsSelector')).each(function(element) {
                 $(this).removeAttr('selected').prop('selected', false);
             });
-            
+            //$("#variantsSelector").multiselect('refresh');
             extras.forEach(element => {
 
                 if(element.id==id){
-                    
+                    console.log(element.variants)
                     $('#modal-title-new-extras').html("Edit option")
                     $('#extras_id').val(element.id);
                     $('#extras_name').val(element.name);

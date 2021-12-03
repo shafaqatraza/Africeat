@@ -14,7 +14,7 @@
                             @csrf
                             <div class="form-group" id="new_address_checkout_holder">
                                 <label class="form-control-label" for="new_address_checkout">{{ __('Address') }}</label>
-                                <select class="noselecttwo form-control" id="new_address_checkout">
+                                <select class="form-control" id="new_address_checkout">
                                 </select>
                             </div>
 
@@ -95,7 +95,7 @@
             <div class="modal-footer">
 
                 <button type="button" class="btn btn-link" data-dismiss="modal">{{ __('Close') }}</button>
-                <button type="button" id="submitNewAddress" class="btn btn-outline-success">{{ __('Save') }}</button>
+                <button type="button" id="submitNewAddress" onclick="this.disabled=true;this.form.submit();"   class="btn btn-outline-success">{{ __('Save') }}</button>
               </div>
 
         </div>

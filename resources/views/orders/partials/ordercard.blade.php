@@ -19,7 +19,7 @@
                             <div class="input-daterange datepicker row align-items-center">
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-control-label">{{ __('Date From') }}</label>
+                                        <label class="form-control-label">{{ __('Filter by Date From') }}</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="ni ni-calendar-grid-58"></i></span>
@@ -30,7 +30,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <div class="form-group">
-                                        <label class="form-control-label">{{ __('Date to') }}</label>
+                                        <label class="form-control-label">{{ __('To') }}</label>
                                         <div class="input-group">
                                             <div class="input-group-prepend">
                                                 <span class="input-group-text"><i class="ni ni-calendar-grid-58"></i></span>
@@ -53,8 +53,7 @@
                                     </select>
                                 </div>
                             </div>
-                        @endif
-                        @if (config('app.isft'))
+                        @endhasrole
                         @hasrole('admin|owner')
                         <div class="col-md-3">
                             <div class="form-group">
@@ -68,7 +67,7 @@
                                 </select>
                             </div>
                         </div>
-                        @endif
+                        @endhasrole
                         @hasrole('admin|owner')
                         <div class="col-md-3">
                             <div class="form-group">
@@ -81,10 +80,7 @@
                                 </select>
                             </div>
                         </div>
-                        @endif    
-                        @else
-                        @endif
-                        
+                        @endhasrole
                     </div>
 
                         <div class="col-md-6 offset-md-6">
@@ -117,8 +113,6 @@
         <table class="table align-items-center">
             @if (isset($financialReport))
                 @include('finances.financialdisplay')
-            @elseif (config('app.isqrsaas'))
-                @include('orders.partials.orderdisplay_local')
             @else
                 @include('orders.partials.orderdisplay')
             @endif

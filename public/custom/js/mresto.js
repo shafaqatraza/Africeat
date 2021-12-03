@@ -1,6 +1,4 @@
-"use strict";
 $(document).ready(function() {
-    
     $('.select2').select2({
         width: '100%',
     });
@@ -31,6 +29,7 @@ $(document).ready(function() {
                     $(this).attr("checked");
                 }
             }, error: function (response) {
+               //alert(response.responseJSON.errMsg);
             }
         })
     });
@@ -38,12 +37,29 @@ $(document).ready(function() {
     $('#btn-submit-time-prepare').hide()
 
     //modal time to prepare buttons
-    $(".btn-time-to-prepare").on("click",function(){
+    $(".btn-time-to-prepare").click(function(){
         $(".btn-time-to-prepare").removeClass("active");
         $(this).addClass("active");
 
         $("#time_to_prepare").val(parseInt($(this).attr('value')));
 
         $('#btn-submit-time-prepare').show()
+        //alert($(this).attr('value'));
+        /*$.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
+        var parameterValues = $(this).attr('value');
+
+        $.ajax({
+            type:'GET',
+            url: 'updatestatus/accepted_by_restaurant/593',
+            //data: { value: value},
+            data: parameterValues,
+            dataType: "json"
+
+        })*/
     });
 });

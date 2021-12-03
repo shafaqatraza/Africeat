@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Categories;
 use Illuminate\Http\Request;
+use App\Categories;
 
 class CategoriesController extends Controller
 {
@@ -40,9 +40,10 @@ class CategoriesController extends Controller
         $category->restorant_id = $request->restaurant_id;
         $category->save();
 
-        if (auth()->user()->hasRole('admin')) {
-            //Direct to that page directly
-            return redirect()->route('items.admin', ['restorant'=>$request->restaurant_id])->withStatus(__('Category successfully created.'));
+        if(auth()->user()->hasRole('admin')){
+            //Direct to that page directly 
+            return redirect()->route('items.admin',['restorant'=>$request->restaurant_id])->withStatus(__('Category successfully created.'));
+            
         }
 
         return redirect()->route('items.index')->withStatus(__('Category successfully created.'));
@@ -77,12 +78,9 @@ class CategoriesController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Categories $category)
+    public function update(Request $request, $id)
     {
-        $category->name = $request->category_name;
-        $category->update();
-
-        return redirect()->back()->withStatus(__('Category name successfully updated.'));
+        //
     }
 
     /**
@@ -93,7 +91,12 @@ class CategoriesController extends Controller
      */
     public function destroy(Categories $category)
     {
-        $category->delete();
+        /*foreach($category->items as $item){
+            $item->delete();
+        }*/
+        $category->active=0;
+        $category->save();
+
         return redirect()->route('items.index')->withStatus(__('Category successfully deleted.'));
     }
 }

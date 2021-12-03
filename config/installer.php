@@ -15,12 +15,12 @@ return [
     |
     */
     'core' => [
-        'minPhpVersion' => '7.0.0',
+        'minPhpVersion' => '7.0.0'
     ],
     'final' => [
         'key' => true,
-        'publish' => false,
-    ],
+        'publish' => false
+    ],    
     'requirements' => [
         'php' => [
             'openssl',
@@ -48,7 +48,7 @@ return [
         'storage/framework/'     => '775',
         'storage/logs/'          => '775',
         'public/uploads/'          => '775',
-        'bootstrap/cache/'       => '775',
+        'bootstrap/cache/'       => '775'
     ],
 
     /*
@@ -66,6 +66,10 @@ return [
                 'app_name'              => 'required|string|max:50',
                 'environment'           => 'required|string|max:50',
                 'environment_custom'    => 'required_if:environment,other|max:50',
+                'app_debug'             => [
+                    'required',
+                    Rule::in(['true', 'false']),
+                ],
                 'app_log_level'         => 'required|string|max:50',
                 'app_url'               => 'required|url',
                 'database_connection'   => 'required|string|max:50',
@@ -113,7 +117,7 @@ return [
             ],
             'dump' => [
                 'data' => 'Dumping a not found message.',
-            ],
+            ]
         ],
     ],
 

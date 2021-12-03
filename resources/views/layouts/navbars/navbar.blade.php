@@ -1,11 +1,7 @@
 @auth()
-    @if(\Request::route()->getName() != "order.success")
-        @include('layouts.navbars.navs.auth')
-    @endif
+    @include('layouts.navbars.navs.auth')
 @endauth
 
 @guest()
-    @if(\Request::route()->getName() != "order.success")
-        @include('layouts.navbars.navs.guest')
-    @endif
+    @include('layouts.navbars.navs.guest')
 @endguest

@@ -2,8 +2,8 @@
 
 namespace App\Http\Middleware;
 
-use Auth;
 use Closure;
+use Auth;
 
 class EnsurePhoneIsVerified
 {
@@ -16,7 +16,8 @@ class EnsurePhoneIsVerified
      */
     public function handle($request, Closure $next)
     {
-        if (Auth::check() && config('settings.enable_sms_verification')) {
+
+        if(Auth::check() && env('ENABLE_SMS_VERIFICATION',false)){
             if (! $request->user()->hasVerifiedPhone()) {
                 return redirect()->route('phoneverification.notice');
             }

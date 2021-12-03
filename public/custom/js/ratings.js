@@ -1,4 +1,3 @@
-"use strict";
 $(document).ready(function(){
 
     checkIfRated();
@@ -36,7 +35,7 @@ $(document).ready(function(){
         $(stars[i]).removeClass('selected');
       }
 
-      for (var i = 0; i < onStar; i++) {
+      for (i = 0; i < onStar; i++) {
         $(stars[i]).addClass('selected');
       }
 
@@ -45,8 +44,15 @@ $(document).ready(function(){
       $("#rating_value").val(ratingValue);
 
       var msg = "";
+      /*if (ratingValue > 1) {
+          msg = "Thanks! You rated this " + ratingValue + " stars.";
+      }
+      else {
+          msg = "We will improve ourselves. You rated this " + ratingValue + " stars.";
+      }*/
       msg = "Thanks! You rated this " + ratingValue + " stars.";
 
+      //responseMessage(msg);
 
       $('#save-ratings').show()
 
@@ -63,7 +69,7 @@ $(document).ready(function(){
 
     var stars = $('#stars li').parent().children('li.star');
 
-    for (var i = 0; i < parseInt(rating); i++) {
+    for (i = 0; i < parseInt(rating); i++) {
       $(stars[i]).addClass('selected');
     }
 
@@ -81,11 +87,13 @@ $(document).ready(function(){
         type:'GET',
         url: '/check/rating/'+$("#order_id").val(),
         dataType: 'json',
+        //data: { rating: ratingValue},
         success:function(response){
             if(response.is_rated){
                 isRated(response.rating);
             }
         }, error: function (response) {
+           //alert(response.responseJSON.errMsg);
         }
     })
 

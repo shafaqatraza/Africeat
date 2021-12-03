@@ -53,8 +53,8 @@ return [
         'subunit'             => 100,
         'symbol'              => 'ƒ',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'AOA' => [
@@ -75,8 +75,8 @@ return [
         'subunit'             => 100,
         'symbol'              => '$',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'AUD' => [
@@ -229,8 +229,8 @@ return [
         'subunit'             => 100,
         'symbol'              => 'R$',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'BSD' => [
@@ -328,8 +328,8 @@ return [
         'subunit'             => 1,
         'symbol'              => 'UF',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'CLP' => [
@@ -339,8 +339,8 @@ return [
         'subunit'             => 1,
         'symbol'              => '$',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'CNY' => [
@@ -361,8 +361,8 @@ return [
         'subunit'             => 100,
         'symbol'              => '$',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'CRC' => [
@@ -372,8 +372,8 @@ return [
         'subunit'             => 100,
         'symbol'              => '₡',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'CUC' => [
@@ -416,8 +416,8 @@ return [
         'subunit'             => 100,
         'symbol'              => 'Kč',
         'symbol_first'        => false,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'DJF' => [
@@ -438,8 +438,8 @@ return [
         'subunit'             => 100,
         'symbol'              => 'kr',
         'symbol_first'        => false,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'DOP' => [
@@ -504,8 +504,8 @@ return [
         'subunit'             => 100,
         'symbol'              => '€',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'FJD' => [
@@ -647,8 +647,8 @@ return [
         'subunit'             => 100,
         'symbol'              => 'kn',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'HTG' => [
@@ -669,8 +669,8 @@ return [
         'subunit'             => 100,
         'symbol'              => 'Ft',
         'symbol_first'        => false,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'IDR' => [
@@ -680,8 +680,8 @@ return [
         'subunit'             => 100,
         'symbol'              => 'Rp',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'ILS' => [
@@ -735,8 +735,8 @@ return [
         'subunit'             => 1,
         'symbol'              => 'kr',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'JMD' => [
@@ -1109,8 +1109,8 @@ return [
         'subunit'             => 100,
         'symbol'              => 'MTn',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'NAD' => [
@@ -1153,8 +1153,8 @@ return [
         'subunit'             => 100,
         'symbol'              => 'kr',
         'symbol_first'        => false,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'NPR' => [
@@ -1285,8 +1285,8 @@ return [
         'subunit'             => 100,
         'symbol'              => 'Lei',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'RSD' => [
@@ -1307,8 +1307,8 @@ return [
         'subunit'             => 100,
         'symbol'              => '₽',
         'symbol_first'        => false,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'RWF' => [
@@ -1549,8 +1549,8 @@ return [
         'subunit'             => 100,
         'symbol'              => '₺',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'TTD' => [
@@ -1626,8 +1626,8 @@ return [
         'subunit'             => 100,
         'symbol'              => '$',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'UZS' => [
@@ -1648,8 +1648,8 @@ return [
         'subunit'             => 100,
         'symbol'              => 'Bs F',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'VND' => [
@@ -1659,8 +1659,8 @@ return [
         'subunit'             => 1,
         'symbol'              => '₫',
         'symbol_first'        => true,
-        'decimal_mark'        => '.',
-        'thousands_separator' => ',',
+        'decimal_mark'        => ',',
+        'thousands_separator' => '.',
     ],
 
     'VUV' => [

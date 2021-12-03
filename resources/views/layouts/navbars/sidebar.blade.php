@@ -1,9 +1,4 @@
-@if (in_array(config('app.locale'),['ar','he','fa','ur']))
-    <nav class="navbar navbar-vertical fixed-right navbar-expand-md navbar-light bg-white" id="sidenav-main">
-@else
-    <nav class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
-@endif
-
+<nav class="navbar navbar-vertical fixed-left navbar-expand-md navbar-light bg-white" id="sidenav-main">
     <div class="container-fluid">
         <!-- Toggler -->
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#sidenav-collapse-main" aria-controls="sidenav-main" aria-expanded="false" aria-label="Toggle navigation">
@@ -21,7 +16,7 @@
                         <span class="avatar avatar-sm rounded-circle">
                             
                             
-                            <img alt="..." src="{{'https://www.gravatar.com/avatar/'.md5(auth()->user()->email) }}">
+                            <img alt="..." src="{{'https://www.gravatar.com/avatar/'.auth()->user()->email }}">
                         </span>
                     </div>
                 </a>
@@ -34,7 +29,8 @@
                         <span>{{ __('My profile') }}</span>
                     </a>
                     <div class="dropdown-divider"></div>
-                    <a href="{{ route('logout') }}" class="dropdown-item" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <a href="{{ route('logout') }}" class="dropdown-item" onclick="event.preventDefault();
+                    document.getElementById('logout-form').submit();">
                         <i class="ni ni-user-run"></i>
                         <span>{{ __('Logout') }}</span>
                     </a>
@@ -60,70 +56,51 @@
                 </div>
             </div>
             <!-- Navigation -->
-            @if(auth()->user()->hasRole('admin'))
+            @role('admin')
                 @include('layouts.navbars.menus.admin')
             @else
                 <span></span>
-            @endif
+            @endrole
 
-            @if(auth()->user()->hasRole('driver'))
+            @role('driver')
                 @include('layouts.navbars.menus.driver')
             @else
                 <span></span>
-            @endif
+            @endrole
 
-            @if(auth()->user()->hasRole('owner'))
+            @role('owner')
                 @include('layouts.navbars.menus.owner')
             @else
                 <span></span>
-            @endif
+            @endrole
 
-            @if(auth()->user()->hasRole('staff'))
-                @include('layouts.navbars.menus.staff')
-            @else
-                <span></span>
-            @endif
-
-            @if(auth()->user()->hasRole('client'))
+            @role('client')
                 @include('layouts.navbars.menus.client')
             @else
                 <span></span>
-            @endif
+            @endrole
 
-            @if(config('settings.restoloyalty_token'))
-            @if(auth()->user()->hasRole('admin'))
+            @if(env('RESTOLOYALTY_TOKEN',null))
+            @role('admin')
                 <hr class="my-3">
                 <h6 class="navbar-heading text-muted">{{ __('External plugins')}}</h6>
                 <ul class="navbar-nav">
                     <li class="nav-item">
-                    <a class="nav-link" href="https://app.restoloyalty.com/sso/{{ config('settings.restoloyalty_token') }}">
+                    <a class="nav-link" href="https://app.restoloyalty.com/sso/{{ env('RESTOLOYALTY_TOKEN','') }}">
                             <i class="ni ni-credit-card text-info"></i> {{ __('Loyalty Platform') }}
                         </a>
                     </li>
                 </ul>
-            @endif
+            @endrole
             @endif
 
             <!-- Divider -->
             <hr class="my-3">
             <!-- Heading -->
-            @if(auth()->user()->hasRole('admin'))
-            <h6 class="navbar-heading text-muted">{{ __('Version')}} {{ config('config.version')}}   <span id="uptodate" class="badge badge-success" style="display:none;">{{ __('latest') }}</span></h6>
+            @role('admin')
+                <h6 class="navbar-heading text-muted">{{ __('Version')}} {{ config('app.version')}}</h6>
                 <h6>{{ \Carbon\Carbon::now() }} </h6>
-                
-                <hr class="my-3">
-                <div id="update_notification" style="display:none;" class="alert alert-info">
-                    <button type="button" style="margin-left: 20px" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div> 
-                <div id="uptodate_notification" style="display:none;" class="alert alert-success">
-                    <button type="button" style="margin-left: 20px" class="close" data-dismiss="alert" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div> 
-                
-            @endif
+            @endrole
             
         </div>
     </div>

@@ -30,7 +30,7 @@
                             </figure>
                             <span class="res_title"><b><a href="{{ $link }}">{{ $restorant->name}}</a></b></span><br />
                             <span class="res_description">{{ $restorant->description}}</span><br />
-                            <span class="res_mimimum">{{ __('Minimum order') }}: @money($restorant->minimum, config('settings.cashier_currency'),config('settings.do_convertion'))</span>
+                            <span class="res_mimimum">{{ __('Minimum order') }}: @money($restorant->minimum, env('CASHIER_CURRENCY','usd'),true)</span>
 
                         </div>
                     </div>

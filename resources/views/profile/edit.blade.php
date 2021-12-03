@@ -2,7 +2,7 @@
 
 @section('content')
     @include('users.partials.header', [
-        'title' => "",
+        'title' => __(''),
     ])
 
     <div class="container-fluid mt--7">
@@ -114,20 +114,6 @@
                                 </div>
                             </div>
                         </form>
-                        @if(auth()->user()->hasRole('owner'))
-                        <hr class="my-4" />
-                        <div class="pl-lg-4">
-                            <div class="text-center">
-                                <form method="post" action="{{ route('user.destroy', auth()->user()) }}">
-                                    @csrf
-                                    @method('delete')
-                                    <button id="close_acc_btn" type="button" class="btn btn-danger mt-4">
-                                        <i id="loadbtn" class="fa fa-spinner fa-spin"></i> &nbsp;{{ __('Close Account') }}
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                        @endif
                     </div>
                 </div>
             </div>
@@ -135,18 +121,4 @@
 
         @include('layouts.footers.auth')
     </div>
-@endsection
-
-@section('js')
-    <script>
-        $('#loadbtn').hide();
-        $('#close_acc_btn').on('click', function() {
-            if (confirm('{{ __("Are you sure you want to cancel the account and all their data?") }}')) {
-                this.parentElement.submit();
-                $('#loadbtn').show();
-            } else {
-                return false;
-            }
-        });
-    </script>
 @endsection

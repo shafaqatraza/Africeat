@@ -2,11 +2,11 @@
 
 namespace App\Notifications;
 
-use App\Driver;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use App\Driver;
 
 class DriverCreated extends Notification
 {
@@ -46,12 +46,12 @@ class DriverCreated extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                ->greeting(__('notifications_hello', ['username' => $this->user->name]))
-                ->line(__('notifications_driver_acc_created', ['app_name' => config('app.name')]))
-                ->action('notifications_login', url(config('app.url').'/login'))
-                ->line(__('notifications_username', ['email'=>$this->user->email]))
-                ->line(__('notifications_password', ['password'=>$this->password]))
-                ->line(__('notifications_reset_pass'));
+                ->greeting(__('Hello ').$this->user->name)
+                ->subject(__('Driver account created in ').env('APP_NAME',""))
+                ->action('Login', url(env('APP_URL',"")."/login"))
+                ->line(__('Username').": ".$this->user->email)
+                ->line(__('Password').": ".$this->password)
+                ->line(__('You can reset your initial password.'));
     }
 
     /**
@@ -62,6 +62,8 @@ class DriverCreated extends Notification
      */
     public function toArray($notifiable)
     {
-        return [];
+        return [
+            //
+        ];
     }
 }

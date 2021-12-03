@@ -2,36 +2,35 @@
 
 namespace App\Http\Controllers\Items;
 
-use App\Extras;
+use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Items;
 use App\Models\Variants;
-use Illuminate\Http\Request;
+use App\Extras;
 
 class VariantsController extends Controller
 {
-    private function getOptionsForItem(Items $item)
-    {
-        $options = [];
-        foreach ($item->options->toArray() as $option) {
-            $data = [];
-            foreach (explode(',', $option['options']) as $key => $value) {
-                $data[str_replace(' ', '-', mb_strtolower(trim($value)))] = $value;
-            }
-            array_push($options, ['id'=>$option['id'], 'name'=>$option['name'], 'data'=>$data]);
-        }
+    private function getOptionsForItem(Items $item){
 
+        $options=[];
+        //dd($item->options->toArray());
+        foreach ($item->options->toArray() as $option) {
+            $data=[];
+            foreach (explode(",",$option['options']) as $key => $value) {
+                $data[str_replace(' ', '-', strtolower(trim($value)))]=$value;
+            }
+           array_push($options,['id'=>$option['id'],'name'=>$option['name'],'data'=>$data]);
+        }
         return [
-            ['ftype'=>'multiselect', 'name'=>'Options', 'id'=>'option', 'placeholder'=>'Enter option', 'required'=>false,
-            'data'=>$options, ],
+            ['ftype'=>'multiselect','name'=>"Options",'id'=>"option",'placeholder'=>"Enter option",'required'=>false,
+            'data'=>$options]
         ];
     }
 
-    private function getFields(Items $item)
-    {
+    private function getFields(Items $item){
         return array_merge([
-            ['ftype'=>'input', 'type'=>'number', 'name'=>'Price', 'id'=>'price', 'placeholder'=>'Enter variant price', 'required'=>true],
-        ], $this->getOptionsForItem($item));
+            ['ftype'=>'input','type'=>"number",'name'=>"Price",'id'=>"price",'placeholder'=>"Enter variant price",'required'=>true]
+        ],$this->getOptionsForItem($item));
     }
 
     /**
@@ -42,28 +41,27 @@ class VariantsController extends Controller
     public function index(Items $item)
     {
         return view('items.variants.index', ['setup' => [
-            'title'=>__('Variants for')." ".$item->name,
-            'action_link'=>route('items.variants.create', ['item'=>$item->id]),
-            'action_name'=>'Add new variant',
-            'items'=>$item->uservariants()->paginate(10),
-            'item_names'=>'variants',
+            'title'=>"Variants for ".$item->name,
+            'action_link'=>route('items.variants.create',['item'=>$item->id]),
+            'action_name'=>"Add new variant",
+            'items'=>$item->variants()->paginate(10),
+            'item_names'=>"variants",
             'breadcrumbs'=>[
-                [__('Menu'), '/items'],
-                [$item->name, '/items/'.$item->id.'/edit'],
-                [__('Variants'), null],
-            ],
+                [__('Menu'),'/items'],
+                [$item->name,"/items/".$item->id."/edit"],
+                [__('Variants'),null],
+            ]
         ]]);
     }
 
     public function extras(Variants $variant)
     {
-        $theExtras = $variant->extras->toArray();
-        $theExtrasGlobal = Extras::where('extra_for_all_variants', 1)->where('item_id', $variant->item_id)->get()->toArray();
-
+        $theExtras=$variant->extras->toArray();
+        $theExtrasGlobal=Extras::where('extra_for_all_variants',1)->where('item_id',$variant->item_id)->get()->toArray();
         return response()->json([
-            'data' => array_merge($theExtras, $theExtrasGlobal),
+            'data' => array_merge($theExtras,$theExtrasGlobal),
             'status' => true,
-            'errMsg' => '',
+            'errMsg' => ''
         ]);
     }
 
@@ -74,24 +72,25 @@ class VariantsController extends Controller
      */
     public function create(Items $item)
     {
-        if ($item->options->count() == 0) {
-            return redirect()->route('items.options.create', ['item'=>$item->id])->withError(__('First, you will need to add some options. Add the item first option now'));
+
+        if($item->options->count()==0){
+            return redirect()->route('items.options.create',['item'=>$item->id])->withError(__('First, you will need to add some options. Add the item first option now'));
         }
 
         return view('general.form', ['setup' => [
-            'title'=>__('New variant for')." ".$item->name,
-            'action_link'=>route('items.variants.index', ['item'=>$item->id]),
-            'action_name'=>__('Back'),
+            'title'=>"New variant for ".$item->name,
+            'action_link'=>route('items.variants.index',['item'=>$item->id]),
+            'action_name'=>__("Back"),
             'iscontent'=>true,
-            'action'=>route('items.variants.store', ['item'=>$item->id]),
+            'action'=>route('items.variants.store',['item'=>$item->id]),
             'breadcrumbs'=>[
-                [__('Menu'), '/items'],
-                [$item->name, '/items/'.$item->id.'/edit'],
-                [__('Variants'), route('items.variants.index', ['item'=>$item->id])],
-                [__('New'), null],
+                [__('Menu'),'/items'],
+                [$item->name,"/items/".$item->id."/edit"],
+                [__('Variants'),route('items.variants.index',['item'=>$item->id])],
+                [__('New'),null]
             ],
         ],
-        'fields'=>$this->getFields($item), ]);
+        'fields'=>$this->getFields($item)]);
     }
 
     /**
@@ -105,12 +104,11 @@ class VariantsController extends Controller
         $variant = Variants::create([
             'price'=>$request->price,
             'item_id'=>$item->id,
-            'options'=>json_encode($request->option),
+            'options'=>json_encode($request->option)
         ]);
         $variant->save();
-        $this->doUpdateOfSystemVariants($variant->item);
+        return redirect()->route('items.variants.index',['item'=>$item->id])->withStatus(__('Variant has been added'));
 
-        return redirect()->route('items.variants.index', ['item'=>$item->id])->withStatus(__('Variant has been added'));
     }
 
     /**
@@ -132,34 +130,40 @@ class VariantsController extends Controller
      */
     public function edit(Variants $variant)
     {
-        $fields = $this->getFields($variant->item);
-        $fields[0]['value'] = $variant->price;
+        $fields=$this->getFields($variant->item);
+        $fields[0]['value']=$variant->price;
 
         //Now fill the options
-        if (is_object(json_decode($variant->options))) {
-            foreach (json_decode($variant->options, true) as $key => $value) {
+        if(is_object(json_decode($variant->options))){
+            foreach (json_decode($variant->options,true) as $key => $value) {
                 foreach ($fields[1]['data'] as &$option) {
-                    if ($option['id'].'' == $key.'') {
-                        $option['value'] = $value;
+                    if($option['id'].""==$key.""){
+                        $option['value']=$value;
                     }
                 }
             }
         }
+
+        //print_r(json_decode($variant->options,true));
+        //dd($fields);
+
+
+        //dd($option);
         return view('general.form', ['setup' => [
-            'title'=>__('Edit variant').' #'.$variant->id,
-            'action_link'=>route('items.variants.index', ['item'=>$variant->item]),
-            'action_name'=>__('Back'),
+            'title'=>__("Edit variant")." #".$variant->id,
+            'action_link'=>route('items.variants.index',['item'=>$variant->item]),
+            'action_name'=>__("Back"),
             'iscontent'=>true,
             'isupdate'=>true,
-            'action'=>route('items.variants.update', ['variant'=>$variant->id]),
+            'action'=>route('items.variants.update',['variant'=>$variant->id]),
             'breadcrumbs'=>[
-                [__('Menu'), '/items'],
-                [$variant->item->name, '/items/'.$variant->item->id.'/edit'],
-                [__('Variants'), route('items.variants.index', ['item'=>$variant->item->id])],
-                ['#'.$variant->id, null],
+                [__('Menu'),'/items'],
+                [$variant->item->name,"/items/".$variant->item->id."/edit"],
+                [__('Variants'),route('items.variants.index',['item'=>$variant->item->id])],
+                ["#".$variant->id,null]
             ],
         ],
-        'fields'=>$fields, ]);
+        'fields'=>$fields]);
     }
 
     /**
@@ -171,13 +175,11 @@ class VariantsController extends Controller
      */
     public function update(Request $request, Variants $variant)
     {
-        $variant->price = $request->price;
-        $variant->options = json_encode($request->option);
+        $variant->price=$request->price;
+        $variant->options=json_encode($request->option);
         $variant->update();
+        return redirect()->route('items.variants.index',['item'=>$variant->item->id])->withStatus(__('Variant has been updated'));
 
-        $this->doUpdateOfSystemVariants($variant->item);
-
-        return redirect()->route('items.variants.index', ['item'=>$variant->item->id])->withStatus(__('Variant has been updated'));
     }
 
     /**
@@ -188,18 +190,8 @@ class VariantsController extends Controller
      */
     public function destroy(Variants $variant)
     {
-        $item=$variant->item;
         $variant->delete();
-        $this->doUpdateOfSystemVariants($item);
+        return redirect()->route('items.variants.index',['item'=>$variant->item->id])->withStatus(__('Variant has been removed'));
 
-        return redirect()->route('items.variants.index', ['item'=>$variant->item->id])->withStatus(__('Variant has been removed'));
-    }
-
-    private function doUpdateOfSystemVariants(Items $item){
-        if($item->enable_system_variants==1){
-            //Delete all system 
-            $item->systemvariants()->forceDelete();
-            $item->makeAllMissingVariants($item->price);
-        }
     }
 }

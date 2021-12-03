@@ -7,7 +7,7 @@ export default class PrintPage extends Component {
         this.state = {
 
         };
-        
+        console.log('data from component'+JSON.stringify(props));
     }
 
 

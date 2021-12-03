@@ -5,7 +5,7 @@ return [
     'manifest' => [
         'name' => env('APP_NAME', 'My PWA App'),
         'short_name' => env('APP_NAME', 'PWA'),
-        'start_url' => '/home',
+        'start_url' => '/',
         'background_color' => '#ffffff',
         'theme_color' => '#000000',
         'display' => 'standalone',
@@ -14,19 +14,24 @@ return [
         'icons' => [
             '256x256' => [
                 'path' => 'android-chrome-256x256.png',
-                'purpose' => 'any',
+                'purpose' => 'any'
             ],
         ],
-
+        
         'shortcuts' => [
             [
-                'name' => 'Home',
-                'description' => 'Go home',
-                'url' => '/',
+                'name' => 'Shortcut Link 1',
+                'description' => 'Shortcut Link 1 Description',
+                'url' => '/shortcutlink1',
                 'icons' => [
-                    'src' => '/images/icons/icon-72x72.png',
-                    'purpose' => 'any',
-                ],
+                    "src" => "/images/icons/icon-72x72.png",
+                    "purpose" => "any"
+                ]
+            ],
+            [
+                'name' => 'Shortcut Link 2',
+                'description' => 'Shortcut Link 2 Description',
+                'url' => '/shortcutlink2'
             ]
         ],
         'custom' => [],
@@ -42,5 +47,5 @@ return [
             '1668x2388' => '/images/icons/splash-1668x2388.png',
             '2048x2732' => '/images/icons/splash-2048x2732.png',
         ],
-    ],
+    ]
 ];

@@ -3,153 +3,246 @@
     {{__('Restaurant Management')}}
 @endsection
 @section('content')
-<div class="header bg-gradient-info pb-6 pt-5 pt-md-8">
-    <div class="container-fluid">
-
-        <div class="nav-wrapper">
-            <ul class="nav nav-pills nav-fill flex-column flex-md-row" id="res_menagment" role="tablist">
-
-                <li class="nav-item">
-                    <a class="nav-link mb-sm-3 mb-md-0 active " id="tabs-menagment-main" data-toggle="tab" href="#menagment" role="tab" aria-controls="tabs-menagment" aria-selected="true"><i class="ni ni-badge mr-2"></i>{{ __('Restaurant Management')}}</a>
-                </li>
-
-                @if(count($appFields)>0)
-                    <li class="nav-item">
-                        <a class="nav-link mb-sm-3 mb-md-0 " id="tabs-menagment-main" data-toggle="tab" href="#apps" role="tab" aria-controls="tabs-menagment" aria-selected="true"><i class="ni ni-spaceship mr-2"></i>{{ __('Apps')}}</a>
-                    </li>
-                @endif
-
-                <li class="nav-item">
-                    <a class="nav-link mb-sm-3 mb-md-0" id="tabs-menagment-main" data-toggle="tab" href="#hours" role="tab" aria-controls="tabs-menagment" aria-selected="true"><i class="ni ni-time-alarm mr-2"></i>{{ __('Working Hours')}}</a>
-                </li>
-
-                <li class="nav-item">
-                    <a class="nav-link mb-sm-3 mb-md-0 " id="tabs-menagment-main" data-toggle="tab" href="#location" role="tab" aria-controls="tabs-menagment" aria-selected="true"><i class="ni ni-square-pin mr-2"></i>{{ __('Location')}}</a>
-                </li>
-                
-                @if(auth()->user()->hasRole('admin'))
-                    <li class="nav-item">
-                        <a class="nav-link mb-sm-3 mb-md-0" id="tabs-menagment-main" data-toggle="tab" href="#plan" role="tab" aria-controls="tabs-menagment" aria-selected="true"><i class="ni ni-money-coins mr-2"></i>{{ __('Plans')}}</a>
-                    </li>
-                @endif
-            </ul>
-        </div>
-
+    <div class="header bg-gradient-primary pb-8 pt-5 pt-md-8">
     </div>
-</div>
-
-
-
-<div class="container-fluid mt--7">
-    <div class="row">
-        <div class="col-12">
-            <br />
-
-            @include('partials.flash')
-
-            <div class="tab-content" id="tabs">
-
-
-                <!-- Tab Managment -->
-                <div class="tab-pane fade show active" id="menagment" role="tabpanel" aria-labelledby="tabs-icons-text-1-tab">
-                    <div class="card bg-secondary shadow">
-                        <div class="card-header bg-white border-0">
-                            <div class="row align-items-center">
-                                <div class="col-8">
-                                    <h3 class="mb-0">{{ __('Restaurant Management') }}</h3>
-                                    @if (config('settings.wildcard_domain_ready'))
-                                    <span class="blockquote-footer">{{ $restorant->getLinkAttribute() }}</span>
-                                    @endif
-                                </div>
-                                <div class="col-4 text-right">
-                                    @if(auth()->user()->hasRole('admin'))
-                                    <a href="{{ route('admin.restaurants.index') }}"
-                                        class="btn btn-sm btn-info">{{ __('Back to list') }}</a>
-                                    @endif
-                                    @if (!config('settings.is_pos_cloud_mode'))
-                                        @if (config('settings.wildcard_domain_ready'))
-                                        <a target="_blank" href="{{ $restorant->getLinkAttribute() }}"
-                                            class="btn btn-sm btn-success">{{ __('View it') }}</a>
-                                        @else
-                                        <a target="_blank" href="{{ route('vendor',$restorant->subdomain) }}"
-                                            class="btn btn-sm btn-success">{{ __('View it') }}</a>
-                                        @endif
-                                        @if ($hasCloner)
-                                            <a href="{{ route('admin.restaurants.create')."?cloneWith=".$restorant->id }}" class="btn btn-sm btn-warning text-white">{{ __('Clone it') }}</a>
-                                        @endif
-                                    @endif
-                                        
-
-                                </div>
+    <div class="container-fluid mt--7">
+        <div class="row">
+            <div class="col-xl-6">
+                <br/>
+                <div class="card bg-secondary shadow">
+                    <div class="card-header bg-white border-0">
+                        <div class="row align-items-center">
+                            <div class="col-8">
+                                <h3 class="mb-0">{{ __('Restaurant Management') }}</h3>
+                                @if (env('WILDCARD_DOMAIN_READY'))
+                                    <span class="blockquote-footer">{{ (isset($_SERVER['HTTPS'])&&$_SERVER["HTTPS"] ?"https://":"http://").$restorant->subdomain.".".$_SERVER['HTTP_HOST'] }}</span>
+                                @endif
+                            </div>
+                            <div class="col-4 text-right">
+                                @if(auth()->user()->hasRole('admin'))
+                                    <a href="{{ route('restorants.index') }}" class="btn btn-sm btn-primary">{{ __('Back to list') }}</a>
+                                @endif
+                                @if (env('WILDCARD_DOMAIN_READY'))
+                                    <a target="_blank" href="{{ (isset($_SERVER['HTTPS'])&&$_SERVER["HTTPS"] ?"https://":"http://").$restorant->subdomain.".".$_SERVER['HTTP_HOST'] }}" class="btn btn-sm btn-success">{{ __('View it') }}</a>
+                                @else
+                                    <a target="_blank" href="{{ route('vendor',$restorant->subdomain) }}" class="btn btn-sm btn-success">{{ __('View it') }}</a>
+                                @endif
 
                             </div>
+
+                        </div>
+                    </div>
+                    <div class="card-body">
+                       <h6 class="heading-small text-muted mb-4">{{ __('Restaurant information') }}</h6>
+                        @include('partials.flash')
+                        <div class="pl-lg-4">
+                            <form method="post" action="{{ route('restorants.update', $restorant) }}" autocomplete="off" enctype="multipart/form-data">
+                                @csrf
+                                @method('put')
+                                    <input type="hidden" id="rid" value="{{ $restorant->id }}"/>
+                                    @include('partials.fields',['fields'=>[
+                                         ['ftype'=>'input','name'=>"Restaurant Name",'id'=>"name",'placeholder'=>"Restaurant Name",'required'=>true,'value'=>$restorant->name],
+                                         ['ftype'=>'input','name'=>"Restaurant Description",'id'=>"description",'placeholder'=>"Restaurant description",'required'=>true,'value'=>$restorant->description],
+                                         ['ftype'=>'input','name'=>"Restaurant Address",'id'=>"address",'placeholder'=>"Restaurant description",'required'=>true,'value'=>$restorant->address],
+                                    ]])
+
+                                    @if (env('MULTI_CITY',false))
+                                        @include('partials.fields',['fields'=>[
+                                            ['ftype'=>'select','name'=>"Restaurant city",'id'=>"city_id",'data'=>$cities,'required'=>true,'value'=>$restorant->city_id],
+
+                                    ]])
+                                    @endif
+
+
+
+                                    <div class="form-group{{ $errors->has('minimum') ? ' has-danger' : '' }}">
+                                        <label class="form-control-label" for="input-description">{{ __('Minimum order') }}</label>
+                                        <input type="number" name="minimum" id="input-minimum" class="form-control form-control-alternative{{ $errors->has('minimum') ? ' is-invalid' : '' }}" placeholder="{{ __('Enter Minimum order value') }}" value="{{ old('minimum', $restorant->minimum) }}" required autofocus>
+                                        @if ($errors->has('minimum'))
+                                            <span class="invalid-feedback" role="alert">
+                                                <strong>{{ $errors->first('minimum') }}</strong>
+                                            </span>
+                                        @endif
+                                    </div>
+                                    @if(auth()->user()->hasRole('admin'))
+                                        <br/>
+                                        <div class="row">
+                                            <div class="col-6 form-group{{ $errors->has('fee') ? ' has-danger' : '' }}">
+                                                <label class="form-control-label" for="input-description">{{ __('Fee percent') }}</label>
+                                                <input type="number" name="fee" id="input-fee" step="any" min="0" max="100" class="form-control form-control-alternative{{ $errors->has('fee') ? ' is-invalid' : '' }}" value="{{ old('fee', $restorant->fee) }}" required autofocus>
+                                                @if ($errors->has('fee'))
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $errors->first('fee') }}</strong>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                            <div class="col-6 form-group{{ $errors->has('static_fee') ? ' has-danger' : '' }}">
+                                                <label class="form-control-label" for="input-description">{{ __('Static fee') }}</label>
+                                                <input type="number" name="static_fee" id="input-fee" step="any" min="0" max="100" class="form-control form-control-alternative{{ $errors->has('static_fee') ? ' is-invalid' : '' }}" value="{{ old('static_fee', $restorant->static_fee) }}" required autofocus>
+                                                @if ($errors->has('static_fee'))
+                                                    <span class="invalid-feedback" role="alert">
+                                                        <strong>{{ $errors->first('static_fee') }}</strong>
+                                                    </span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <br/>
+                                        <div class="form-group">
+                                            <label class="form-control-label" for="item_price">{{ __('Is Featured') }}</label>
+                                            <label class="custom-toggle" style="float: right">
+                                                <input type="checkbox" name="is_featured" <?php if($restorant->is_featured == 1){echo "checked";}?>>
+                                                <span class="custom-toggle-slider rounded-circle"></span>
+                                            </label>
+                                        </div>
+                                        <br/>
+                                    @endif
+                                    <div class="row">
+                                        <?php
+                                            $images=[
+                                                ['name'=>'resto_logo','label'=>__('Restaurant Image'),'value'=>$restorant->logom,'style'=>'width: 295px; height: 200px;'],
+                                                ['name'=>'resto_cover','label'=>__('Restaurant Cover Image'),'value'=>$restorant->coverm,'style'=>'width: 200px; height: 100px;']
+                                            ]
+                                        ?>
+                                        @foreach ($images as $image)
+                                            <div class="col-md-6">
+                                                @include('partials.images',$image)
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                    <div class="text-center">
+                                        <button type="submit" class="btn btn-success mt-4">{{ __('Save') }}</button>
+                                    </div>
+                                </form>
+                            </div>
+                            <hr />
+                            <h6 class="heading-small text-muted mb-4">{{ __('Owner information') }}</h6>
+                            <div class="pl-lg-4">
+                                <div class="form-group{{ $errors->has('name_owner') ? ' has-danger' : '' }}">
+                                    <label class="form-control-label" for="name_owner">{{ __('Owner Name') }}</label>
+                                    <input type="text" name="name_owner" id="name_owner" class="form-control form-control-alternative" placeholder="{{ __('Owner Name') }}" value="{{ old('name', $restorant->user->name) }}" readonly>
+                                </div>
+                                <div class="form-group{{ $errors->has('email_owner') ? ' has-danger' : '' }}">
+                                    <label class="form-control-label" for="email_owner">{{ __('Owner Email') }}</label>
+                                    <input type="text" name="email_owner" id="email_owner" class="form-control form-control-alternative" placeholder="{{ __('Owner Email') }}" value="{{ old('name', $restorant->user->email) }}" readonly>
+                                </div>
+                                <div class="form-group{{ $errors->has('phone_owner') ? ' has-danger' : '' }}">
+                                    <label class="form-control-label" for="phone_owner">{{ __('Owner Phone') }}</label>
+                                    <input type="text" name="phone_owner" id="phone_owner" class="form-control form-control-alternative" placeholder="{{ __('Owner Phone') }}" value="{{ old('name', $restorant->user->phone) }}" readonly>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-xl-6 mb-5 mb-xl-0">
+                    <br/>
+                    <div class="card card-profile shadow">
+                        <div class="card-header">
+                            <h5 class="h3 mb-0">{{ __("Restaurant Location")}}</h5>
                         </div>
                         <div class="card-body">
-                            <h6 class="heading-small text-muted mb-4">{{ __('Restaurant information') }}</h6>
-                            
-                            @include('restorants.partials.info')
-                            <hr />
-                            @include('restorants.partials.owner')
+                            <div class="nav-wrapper">
+                                <ul class="nav nav-pills nav-fill flex-column flex-md-row" id="tabs-icons-text" role="tablist">
+                                    <li class="nav-item">
+                                        <a class="nav-link mb-sm-3 mb-md-0 active" id="tabs-icons-text-1-tab" data-toggle="tab" href="#tabs-icons-text-1" role="tab" aria-controls="tabs-icons-text-1" aria-selected="true">{{ __('Location') }}</a>
+                                    </li>
+                                    @if (!env('DISABLE_DELIVER',false))
+                                        <li class="nav-item">
+                                            <a class="nav-link mb-sm-3 mb-md-0" id="tabs-icons-text-2-tab" data-toggle="tab" href="#tabs-icons-text-2" role="tab" aria-controls="tabs-icons-text-2" aria-selected="false">{{ __('Delivery Area') }}</a>
+                                        </li>
+                                    @endif
+                                </ul>
+                            </div>
+                            <div class="card shadow">
+                                <div class="card-body">
+                                    <div class="tab-content" id="myTabContent">
+                                        <div class="tab-pane fade show active" id="tabs-icons-text-1" role="tabpanel" aria-labelledby="tabs-icons-text-1-tab">
+                                            <div id="map_location" class="form-control form-control-alternative"></div>
+                                        </div>
+                                        <div class="tab-pane fade" id="tabs-icons-text-2" role="tabpanel" aria-labelledby="tabs-icons-text-2-tab">
+                                            <div id="map_area" class="form-control form-control-alternative"></div>
+                                            <br/>
+                                            <button type="button" id="clear_area" class="btn btn-danger btn-sm btn-block">{{ __("Clear Delivery Area")}}</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-
-                <!-- Tab Apps -->
-                @if(count($appFields)>0)
-                    <div class="tab-pane fade show" id="apps" role="tabpanel" aria-labelledby="tabs-icons-text-1-tab">
-                        @include('restorants.partials.apps') 
+                    <br/>
+                <div class="card card-profile bg-secondary shadow">
+                    <div class="card-header">
+                        <h5 class="h3 mb-0">{{ __("Working Hours")}}</h5>
                     </div>
-                @endif
-
-                <!-- Tab Location -->
-                <div class="tab-pane fade show" id="location" role="tabpanel" aria-labelledby="tabs-icons-text-1-tab">
-                    @include('restorants.partials.location')
-                </div>
-                
-
-                <!-- Tab Hours -->
-                <div class="tab-pane fade show" id="hours" role="tabpanel" aria-labelledby="tabs-icons-text-1-tab">
-                    @include('restorants.partials.hours')
-                </div>
-
-                <!-- Tab Hours -->
-                @if(auth()->user()->hasRole('admin'))
-                    <div class="tab-pane fade show" id="plan" role="tabpanel" aria-labelledby="tabs-icons-text-1-tab">
-                        @include('restorants.partials.plan')
+                    <div class="card-body">
+                        <form method="post" action="{{ route('restaurant.workinghours') }}" autocomplete="off" enctype="multipart/form-data">
+                            @csrf
+                            <input type="hidden" id="rid" name="rid" value="{{ $restorant->id }}"/>
+                            <div class="form-group">
+                                @foreach($days as $key => $value)
+                                    <br/>
+                                    <div class="row">
+                                        <div class="col-4">
+                                            <div class="custom-control custom-checkbox">
+                                                <input type="checkbox" name="days" class="custom-control-input" id="{{ 'day'.$key }}" value={{ $key }}>
+                                                <label class="custom-control-label" for="{{ 'day'.$key }}">{{ __($value) }}</label>
+                                            </div>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="ni ni-time-alarm"></i></span>
+                                                </div>
+                                                <input id="{{ $key.'_from' }}" name="{{ $key.'_from' }}" class="flatpickr datetimepicker form-control" type="text" placeholder="{{ __('Time') }}">
+                                            </div>
+                                        </div>
+                                        <div class="col-2 text-center">
+                                            <p class="display-4">-</p>
+                                        </div>
+                                        <div class="col-3">
+                                            <div class="input-group">
+                                                <div class="input-group-prepend">
+                                                    <span class="input-group-text"><i class="ni ni-time-alarm"></i></span>
+                                                </div>
+                                                <input id="{{ $key.'_to' }}" name="{{ $key.'_to' }}" class="flatpickr datetimepicker form-control" type="text" placeholder="{{ __('Time') }}">
+                                            </div>
+                                        </div>
+                                    </div>
+                                @endforeach
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-success mt-4">{{ __('Save') }}</button>
+                            </div>
+                        </form>
                     </div>
-                @endif
-
+                </div>
             </div>
         </div>
+        @include('layouts.footers.auth')
     </div>
-    @include('layouts.footers.auth')
-</div>
 @endsection
 
 @section('js')
-<!-- Google Map -->
-<script async defer src= "https://maps.googleapis.com/maps/api/js?libraries=geometry,drawing&key=<?php echo config('settings.google_maps_api_key'); ?>"> </script>
-
     <script type="text/javascript">
-        "use strict";
         var defaultHourFrom = "09:00";
         var defaultHourTo = "17:00";
 
-        var timeFormat = '{{ config('settings.time_format') }}';
+        var timeFormat = '{{ env('TIME_FORMAT','24hours') }}';
 
         function formatAMPM(date) {
+            //var hours = date.getHours();
+            //var minutes = date.getMinutes();
             var hours = date.split(':')[0];
             var minutes = date.split(':')[1];
 
             var ampm = hours >= 12 ? 'pm' : 'am';
             hours = hours % 12;
             hours = hours ? hours : 12; // the hour '0' should be '12'
-           
+            //minutes = minutes < 10 ? '0'+minutes : minutes;
             var strTime = hours + ':' + minutes + ' ' + ampm;
             return strTime;
         }
 
-
+        //console.log(formatAMPM("19:05"));
 
         var config = {
             enableTime: true,
@@ -175,8 +268,14 @@
         };
 
         $("input[type='checkbox'][name='days']").change(function() {
-            var hourFrom = flatpickr($('#'+ this.value + '_from'+"_shift"+$('#'+ this.id).attr("valuetwo")), config);
-            var hourTo = flatpickr($('#'+ this.value + '_to'+"_shift"+$('#'+ this.id).attr("valuetwo")), config);
+            /*if(this.checked) {
+                var returnVal = confirm("Are you sure?");
+                $(this).prop("checked", returnVal);
+            }
+            $('#textbox1').val(this.checked);*/
+
+            var hourFrom = flatpickr($('#'+ this.value + '_from'), config);
+            var hourTo = flatpickr($('#'+ this.value + '_to'), config);
 
             if(this.checked){
                 hourFrom.setDate(timeFormat == "AP/PM" ? formatAMPM(defaultHourFrom) : defaultHourFrom, false);
@@ -195,7 +294,7 @@
             }
         });
 
-        $("#clear_area").on("click",function() {
+        $("#clear_area").click(function() {
             //remove markers
             for (var i = 0; i < markers.length; i++) {
                 markers[i].setMap(null);
@@ -210,7 +309,7 @@
             path = poly.getPath();
 
             //update delivery path
-            changeDeliveryArea(getLatLngFromPoly(path))
+            changeDeliveryArea(path)
 
             isClosed = false;
             $("#clear_area").hide();
@@ -218,26 +317,16 @@
 
         //Initialize working hours
         function initializeWorkingHours(){
-            var shifts = {!! json_encode($shifts) !!};
-            
-            if(shifts != null){
-                Object.keys(shifts).map((shiftKey)=>{
-                    var sk=shiftKey;
-                    var workingHours=shifts[shiftKey];
-                    
-                    Object.keys(workingHours).map((key, index)=>{
-                        //now we have the shifts
-                        if(workingHours[key] != null){
-                            
-                            var hour = flatpickr($('#'+key+'_shift'+shiftKey), config);
-                            hour.setDate(workingHours[key], false);
+            var workingHours = {!! json_encode($hours) !!};
+            if(workingHours != null){
+                Object.keys(workingHours).map((key, index)=>{
+                    if(workingHours[key] != null){
+                        var hour = flatpickr($('#'+key), config);
+                        hour.setDate(workingHours[key], false);
 
-                            var day_key = key.split('_')[0];
-                            $('#day'+day_key+'_shift'+shiftKey).attr('checked', 'checked');
-                        }
-                    });
-                    
-
+                        var day_key = key.split('_')[0];
+                        $('#day'+day_key).attr('checked', 'checked');
+                    }
                 })
             }
         }
@@ -263,6 +352,8 @@
         }
 
         function changeLocation(lat, lng){
+            //var latConv = parseFloat(lat.toString().substr(0, 5));
+            //var lngConv = parseFloat(lng.toString().substr(0, 5));
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -279,13 +370,16 @@
                 },
                 success:function(response){
                     if(response.status){
-                        
+                        console.log(response.status)
                     }
+                }, error: function (response) {
+                //alert(response.responseJSON.errMsg);
                 }
             })
         }
 
         function changeDeliveryArea(path){
+
             $.ajaxSetup({
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -297,13 +391,14 @@
                 url: '/updateres/delivery/'+$('#rid').val(),
                 dataType: 'json',
                 data: {
-                    //path: JSON.stringify(path.i)
-                    path: JSON.stringify(path)
+                    path: JSON.stringify(path.i)
                 },
                 success:function(response){
                     if(response.status){
-                        
+                        console.log(response.status)
                     }
+                }, error: function (response) {
+                //alert(response.responseJSON.errMsg);
                 }
             })
         }
@@ -329,22 +424,6 @@
             });
         }
 
-        function getLatLngFromPoly(path){
-            //get lat long from polygon
-            var polygonBounds = path;
-            var bounds = [];
-            for (var i = 0; i < polygonBounds.length; i++) {
-                var point = {
-                    lat: polygonBounds.getAt(i).lat(),
-                    lng: polygonBounds.getAt(i).lng()
-                };
-
-                bounds.push(point);
-            }
-
-            return bounds;
-        }
-
         function new_delivery_area(latLng){
             if (isClosed) return;
             markerIndex = poly.getPath().length;
@@ -363,9 +442,9 @@
                     isClosed = true;
 
                     //update delivery path
-                    changeDeliveryArea(getLatLngFromPoly(path));
+                    changeDeliveryArea(path)
                     //show button clear
-                    
+                    //$("#clear_area").show();
                 });
             }
             //show button clear
@@ -378,14 +457,14 @@
         }
 
         function initialize_existing_area(area_positions){
-            for(var i=0; i<area_positions.length; i++){
+            for(i=0; i<area_positions.length; i++){
                 var markerAreaData = new google.maps.LatLng(area_positions[i].lat, area_positions[i].lng);
                 markerArea = new google.maps.Marker({ map: map_area, position: markerAreaData, draggable: false, icon: area });
 
                 //push markers
                 markers.push(markerArea);
 
-         
+                //var path = poly.getPath();
                 path = poly.getPath();
 
                 poly.setMap(null);
@@ -394,13 +473,18 @@
                 //show clear area
                 isClosed = true;
                 $("#clear_area").show();
-             }
+                //google.maps.event.addListener(markerArea, "drag", update_polygon_closure(poly, i));
+            }
 
-
+            /*function update_polygon_closure(poly, i){
+                return function(event){
+                    poly.getPath().setAt(i, event.latLng);
+                }
+            }*/
         }
 
-        var start = "/images/pin.png"
-        var area = "/images/green_pin.png"
+        var start = "https://cdn1.iconfinder.com/data/icons/Map-Markers-Icons-Demo-PNG/48/Map-Marker-Ball-Pink.png"
+        var area = "https://cdn1.iconfinder.com/data/icons/Map-Markers-Icons-Demo-PNG/48/Map-Marker-Ball-Chartreuse.png"
         var map_location = null;
         var map_area = null;
         var marker = null;
@@ -416,7 +500,7 @@
         var path = null;
 
         window.onload = function () {
-          
+            //var map, infoWindow, marker, lng, lat;
 
             //Working hours
             initializeWorkingHours();
@@ -432,7 +516,7 @@
                         //initialize marker
                         initializeMarker(currPost.lat, currPost.lng)
 
-                   
+                        //var isClosed = false;
 
                         poly = new google.maps.Polyline({ map: map_area, path: currPost.area ? currPost.area : [], strokeColor: "#FF0000", strokeOpacity: 1.0, strokeWeight: 2 });
 
@@ -453,6 +537,10 @@
                         if (navigator.geolocation) {
                             navigator.geolocation.getCurrentPosition(function(position) {
                                 var pos = { lat: position.coords.latitude, lng: position.coords.longitude };
+
+                                //infoWindow.setPosition(pos);
+                                //infoWindow.setContent('Location found.');
+                                //infoWindow.open(map);
 
                                 //initialize map
                                 initializeMap(position.coords.latitude, position.coords.longitude)
@@ -491,6 +579,9 @@
                                     new_delivery_area(event.latLng)
                                 });
                             });
+                        } else {
+                            // Browser doesn't support Geolocation
+                            //handleLocationError(false, infoWindow, map.getCenter());
                         }
                     }
                 }
@@ -502,42 +593,6 @@
             infoWindow.setContent(browserHasGeolocation ? 'Error: The Geolocation service failed.' : 'Error: Your browser doesn\'t support geolocation.');
             infoWindow.open(map);
         }
-
-        var form = document.getElementById('restorant-form');
-        form.addEventListener('submit', async function(event) {
-            event.preventDefault();
-            
-            var address = $('#address').val();
-
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
-            $.ajax({
-                type: 'POST',
-                url: '/restaurant/address',
-                dataType: 'json',
-                data: { address: address},
-                success:function(response){
-                    if(response.status){
-                        if(response.results.lat && response.results.lng){
-                            initializeMap(response.results.lat, response.results.lng);
-                            initializeMarker(response.results.lat, response.results.lng);
-                            changeLocation(response.results.lat, response.results.lng);
-
-                            map_location.addListener('click', function(event) {
-                                marker.setPosition(new google.maps.LatLng(event.latLng.lat(), event.latLng.lng()));
-
-                                changeLocation(event.latLng.lat(), event.latLng.lng());
-                            });
-                        }
-                    }
-                }
-            })
-
-            form.submit();
-        });
     </script>
 @endsection
+

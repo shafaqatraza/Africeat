@@ -1,6 +1,5 @@
-    "use strict";
     //Address map checkout
-    var start = "/images/pin.png"
+    var start = "https://cdn1.iconfinder.com/data/icons/Map-Markers-Icons-Demo-PNG/48/Map-Marker-Ball-Pink.png"
     var map = null;
     var markerData = null;
     var marker = null;
@@ -34,6 +33,7 @@
                     return callback(true, response.result)
                 }
             }, error: function (response) {
+             //return callback(false, response.responseJSON.errMsg);
             }
         })
     }
@@ -64,8 +64,8 @@
                 $("#address-info").show();
                 $("#submitNewAddress").show();
 
-                var latAdd = data.lat;
-                var lngAdd = data.lng;
+                latAdd = data.lat;
+                lngAdd = data.lng;
 
                 map = new google.maps.Map(document.getElementById('new_address_map'), {
                     zoom: 17,
@@ -84,14 +84,14 @@
                     var data = new google.maps.LatLng(event.latLng.lat(), event.latLng.lng());
                     marker.setPosition(data);
 
-                    var latAdd = event.latLng.lat();
-                    var lngAdd = event.latLng.lng();
+                    latAdd = event.latLng.lat();
+                    lngAdd = event.latLng.lng();
                 });
             }
         });
     })
 
-    $("#submitNewAddress").on("click",function() {
+    $("#submitNewAddress").click(function() {
         var address_name = $("#new_address_checkout option:selected").text();
         var address_number = $("#address_number").val();
         var number_apartment = $("#number_apartment").val();
@@ -122,6 +122,7 @@
                         location.replace(response.success_url);
                     }
                 }, error: function (response) {
+                    //return callback(false, response.responseJSON.errMsg);
                 }
             })
     });

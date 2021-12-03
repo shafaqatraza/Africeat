@@ -20,12 +20,8 @@ Coded by www.creative-tim.com
     <link rel="apple-touch-icon" sizes="76x76" href="{{ asset('argonfront') }}/img/apple-icon.png">
     <link rel="icon" type="image/png" href="{{ asset('argonfront') }}/img/favicon.png">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    
-    @yield('extrameta')
     <meta property="og:image" content="{{ config('global.site_logo') }}">
     <title>{{ config('global.site_name','FoodTiger') }}</title>
-
-    @notifyCss
 
     <!--     Fonts and icons     -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
@@ -47,22 +43,20 @@ Coded by www.creative-tim.com
 
 
     <!-- Global site tag (gtag.js) - Google Analytics -->
-    @if (config('settings.google_analytics'))
-        <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo config('settings.google_analytics'); ?>"></script>
+    @if (env('GOOGLE_ANALYTICS',false))
+        <script async src="https://www.googletagmanager.com/gtag/js?id=<?php echo env('GOOGLE_ANALYTICS',''); ?>"></script>
         <script>
             window.dataLayer = window.dataLayer || [];
             function gtag(){dataLayer.push(arguments);}
             gtag('js', new Date());
 
-            gtag('config', '<?php echo config('settings.google_analytics'); ?>');
+            gtag('config', '<?php echo env('GOOGLE_ANALYTICS',''); ?>');
         </script>
     @endif
-
+   
   @include('googletagmanager::head')
   @yield('head')
   @laravelPWA
-  @include('layouts.rtl')
-  
 
 <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
@@ -71,9 +65,6 @@ Coded by www.creative-tim.com
 <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
 <meta name="msapplication-TileColor" content="#da532c">
 <meta name="theme-color" content="#ffffff">
-
-<!-- Custom CSS defined by admin -->
-<link type="text/css" href="{{ asset('byadmin') }}/front.css" rel="stylesheet">
 
 </head>
 
@@ -88,12 +79,12 @@ Coded by www.creative-tim.com
 
 
     <!-- Navbar -->
-    @if(config('app.isft'))
+    @if(!config('app.isqrsaas'))
         @include('layouts.menu.top')
     @else
         @include('layouts.menu.top_justlogo')
     @endif
-
+    
     <!-- End Navbar -->
     <div class="wrapper">
         @yield('content')
@@ -124,60 +115,33 @@ Coded by www.creative-tim.com
     <script src="{{ asset('argonfront') }}/js/argon-design-system.js?v=1.2.0" type="text/javascript"></script>
 
 
-   <!-- Import Vue -->
-   <script src="{{ asset('vendor') }}/vue/vue.js"></script>
-   <!-- Import AXIOS --->
-   <script src="{{ asset('vendor') }}/axios/axios.min.js"></script>
+    <!-- Import Vue -->
+    <script src="https://unpkg.com/vue@2.1.6/dist/vue.js"></script>
+    <!-- Import AXIOS --->
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 
     <!-- Add to Cart   -->
     <script>
         var LOCALE="<?php echo  App::getLocale() ?>";
-        var CASHIER_CURRENCY = "<?php echo  config('settings.cashier_currency') ?>";
-        var USER_ID = '{{  auth()->user()&&auth()->user()?auth()->user()->id:"" }}';
-        var PUSHER_APP_KEY = "{{ config('broadcasting.connections.pusher.key') }}";
-        var PUSHER_APP_CLUSTER = "{{ config('broadcasting.connections.pusher.options.cluster') }}";
+        var CASHIER_CURRENCY = "<?php echo  env('CASHIER_CURRENCY','usd') ?>";
     </script>
     <script src="{{ asset('custom') }}/js/cartFunctions.js"></script>
-
-
     <!-- Cart custom sidemenu -->
     <script src="{{ asset('custom') }}/js/cartSideMenu.js"></script>
 
     <!-- Notify JS -->
     <script src="{{ asset('custom') }}/js/notify.min.js"></script>
 
-     <!-- SELECT2 -->
+     <!-- SELECT2 - CHECKOUT ONLT  -->
      <script src="{{ asset('custom') }}/js/select2.js"></script>
-     <script src="{{ asset('vendor') }}/select2/select2.min.js"></script>
-
-    <!-- All in one -->
-    <script src="{{ asset('custom') }}/js/js.js?id={{ config('config.version')}}"></script>
-
-
-
+     <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 
      <!-- Google Map -->
-     <script async defer src="https://maps.googleapis.com/maps/api/js?libraries=geometry,drawing&key=<?php echo config('settings.google_maps_api_key'); ?>&libraries=places&callback=js.initializeGoogle"></script>
-
-    @if(strlen( config('broadcasting.connections.pusher.app_id'))>2)
-        <!-- Pusher -->
-        <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
-        <script src="{{ asset('custom') }}/js/pusher.js"></script>
-    @endif
-
-    <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
+     <script async defer
+            src= "https://maps.googleapis.com/maps/api/js?libraries=geometry,drawing&key=<?php echo env('GOOGLE_MAPS_API_KEY',''); ?>">
+        </script>
 
     @yield('js')
-
-    @notifyJs
-
-    <!-- Custom JS defined by admin -->
-    <?php echo file_get_contents(base_path('public/byadmin/front.js')) ?>
-
-    <script>
-        window.translations = {!! Cache::get('translations'.App::getLocale()) !!};
-    </script>
-
 </body>
 
 </html>

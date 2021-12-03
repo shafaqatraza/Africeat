@@ -1,9 +1,9 @@
 <div id="tracking_map" class="form-control form-control-alternative"></div>
 <script>
 
-  var start="/images/pin.png"
-  var end="/images/green_pin.png"
-  var driver="/images/blue_pin.png"
+  var start="https://cdn1.iconfinder.com/data/icons/Map-Markers-Icons-Demo-PNG/48/Map-Marker-Ball-Pink.png"
+  var end="https://cdn1.iconfinder.com/data/icons/Map-Markers-Icons-Demo-PNG/48/Map-Marker-Ball-Chartreuse.png"
+  var driver="https://cdn1.iconfinder.com/data/icons/Map-Markers-Icons-Demo-PNG/48/Map-Marker-Marker-Inside-Azure.png"
 
 //Not in use - can be if you use direction API
 function calculateRoute(from, to) {
@@ -74,7 +74,7 @@ function initTheTrackingMap(currentPosiotion,){
 
 function getOrderLocation(){
   axios.get('/ordertracingapi/{{ $order->id }}').then(function (response) {
-    
+    console.log(response.data);
     if(response.data.status=="tracing"){
       markerData=new google.maps.LatLng(response.data.lat, response.data.lng);
       if(driverMarker==null){
@@ -96,7 +96,7 @@ function getOrderLocation(){
     }
   })
   .catch(function (error) {
-    
+    console.log(error);
   });
 };
 

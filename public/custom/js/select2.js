@@ -1,6 +1,4 @@
-"use strict";
 $(document).ready(function() {
-
     $('.select2').select2({
         width: '100%',
     });
@@ -19,6 +17,7 @@ $(document).ready(function() {
 
     $('#addressID').select2({
         width: '100%',
+        placeholder: "",
         allowClear: true,
     });
 
@@ -30,6 +29,7 @@ $(document).ready(function() {
         ajax: {
             url: '/new/address/autocomplete',
             dataType: 'json',
+            //delay: 200,
             data: function (params) {
                 return {
                     term: params.term,

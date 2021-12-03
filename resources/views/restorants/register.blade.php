@@ -1,19 +1,14 @@
 @extends('layouts.front', ['title' => __('User Profile')])
-@if (strlen(config('settings.recaptcha_site_key'))>2)
-    @section('head')
-    {!! htmlScriptTagJsApi([]) !!}
-    @endsection
-@endif
 
 @section('content')
     @include('users.partials.header', [
-        'title' => "",
+        'title' => __(''),
     ])
-
+   
 
     <div class="container-fluid mt--7">
         <div class="row">
-
+           
             </div>
             <div class="col-xl-8 offset-xl-2">
                 <div class="card bg-secondary shadow">
@@ -25,7 +20,6 @@
                     <div class="card-body">
                         <form  id="registerform" method="post" action="{{ route('newrestaurant.store') }}" autocomplete="off">
                             @csrf
-
                             <h6 class="heading-small text-muted mb-4">{{ __('Restaurant information') }}</h6>
 
                             @if (session('status'))
@@ -82,19 +76,7 @@
                                 </div>
 
                                 <div class="text-center">
-                                    @if (strlen(config('settings.recaptcha_site_key'))>2)
-                                        @if ($errors->has('g-recaptcha-response'))
-                                        <span class="invalid-feedback" role="alert">
-                                            <strong>{{ $errors->first('g-recaptcha-response') }}</strong>
-                                        </span>
-                                        @endif
-
-                                        {!! htmlFormButton(__('Save'), ['id'=>'thesubmitbtn','class' => 'btn btn-success mt-4']) !!}
-                                    @else
-                                        <button type="submit" id="thesubmitbtn" class="btn btn-success mt-4">{{__('Save')}}</button>
-                                    @endif
-
-
+                                    <button type="submit" class="btn btn-success mt-4">{{ __('Save') }}</button>
                                 </div>
                             </div>
                         </form>
@@ -109,8 +91,7 @@
 @section('js')
 @if (isset($_GET['name'])&&$errors->isEmpty())
 <script>
-    "use strict";
-    document.getElementById("thesubmitbtn").click();
-</script>
+    document.getElementById("registerform").submit(); 
+</script> 
 @endif
 @endsection

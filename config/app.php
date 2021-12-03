@@ -14,6 +14,24 @@ return [
     */
 
     'name' => env('APP_NAME', 'Laravel'),
+    'version' => '1.5.1',
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | SETUP
+    |--------------------------------------------------------------------------
+    |
+    */
+    'ignore_subdomains' => explode(',', env('IGNORE_SUBDOMAINS', 'www')),
+    'order_approve_directly' => env('APP_ORDER_APPROVE_DIRECTLY', false),
+    'allow_self_deliver' => env('APP_ALLOW_SELF_DELIVER', false),
+
+    'twilio' => [
+        'TWILIO_AUTH_TOKEN'  => env('TWILIO_AUTH_TOKEN'),
+        'TWILIO_ACCOUNT_SID' => env('TWILIO_ACCOUNT_SID')
+    ],
+
 
 
     /*
@@ -29,6 +47,7 @@ return [
 
     'env' => env('APP_ENV', 'production'),
 
+
     /*
     |--------------------------------------------------------------------------
     | Application Type
@@ -41,28 +60,7 @@ return [
     */
 
     'projecttype' => env('APP_PROJECT_TYPE', 'ft'),
-    'isqrsaas' => env('APP_PROJECT_TYPE', 'ft') == 'qrsaas',
-    'iswp' => env('IS_WHATSAPP_ORDERING_MODE', false),
-    'isft' => env('APP_PROJECT_TYPE', 'ft') == 'ft',
-    'ispc' => env('IS_POS_CLOUD_MODE',false),
-    'isag' => env('IS_AGRIS_MODE',false),
-    'isqrexact' => env('APP_PROJECT_TYPE', 'ft') == 'qrsaas' && !( env('IS_POS_CLOUD_MODE',false) || env('IS_WHATSAPP_ORDERING_MODE', false)),
-    'ordering' => env('APP_PROJECT_TYPE', 'ft') != 'qrsaas' || env('APP_PROJECT_TYPE', 'ft') == 'qrsaas' && ! env('QRSAAS_DISABLE_ODERING', false),
-
-    /*
-    |--------------------------------------------------------------------------
-    | SETUP
-    |--------------------------------------------------------------------------
-    |
-    */
-    'ignore_subdomains' => explode(',', env('IGNORE_SUBDOMAINS', 'www')),
-    'order_approve_directly' => env('APP_ORDER_APPROVE_DIRECTLY', false),
-    'allow_self_deliver' => env('APP_ALLOW_SELF_DELIVER', false),
-
-    'twilio' => [
-        'TWILIO_AUTH_TOKEN'  => env('TWILIO_AUTH_TOKEN'),
-        'TWILIO_ACCOUNT_SID' => env('TWILIO_ACCOUNT_SID'),
-    ],
+    'isqrsaas' => env('APP_PROJECT_TYPE', 'ft')=="qrsaas",
 
 
     /*
@@ -77,11 +75,6 @@ return [
     */
 
     'debug' => env('APP_DEBUG', false),
-    'debug_blacklist' => [
-        '_COOKIE' => array_keys($_COOKIE),
-        '_SERVER' => array_keys($_SERVER),
-        '_ENV' => array_keys($_ENV),
-    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -97,7 +90,6 @@ return [
     'url' => env('APP_URL', 'http://localhost'),
 
     'asset_url' => env('ASSET_URL', null),
-    'company_images' => env('COMPANY_IMAGES_PATH', "/uploads/restorants/"),
 
     /*
     |--------------------------------------------------------------------------
@@ -123,7 +115,7 @@ return [
     |
     */
 
-    'locale' => strtolower(env('APP_LOCALE', 'en')),
+    'locale' => env('APP_LOCALE', 'en'),
 
     /*
     |--------------------------------------------------------------------------
@@ -201,14 +193,16 @@ return [
         Illuminate\Redis\RedisServiceProvider::class,
         Illuminate\Auth\Passwords\PasswordResetServiceProvider::class,
         Illuminate\Session\SessionServiceProvider::class,
-        JoeDixon\Translation\TranslationServiceProvider::class,
         Illuminate\Translation\TranslationServiceProvider::class,
         Illuminate\Validation\ValidationServiceProvider::class,
         Illuminate\View\ViewServiceProvider::class,
         Onecentlin\Adminer\ServiceProvider::class,
         Akaunting\Money\Provider::class,
         Intervention\Image\ImageServiceProvider::class,
-        Biscolab\ReCaptcha\ReCaptchaServiceProvider::class,
+        RachidLaasri\LaravelInstaller\Providers\LaravelInstallerServiceProvider::class,
+        Brotzka\DotenvEditor\DotenvEditorServiceProvider::class,
+
+
 
         /*
          * Package Service Providers...
@@ -219,14 +213,11 @@ return [
          */
         App\Providers\AppServiceProvider::class,
         App\Providers\AuthServiceProvider::class,
-        App\Providers\TranslationServiceProvider::class,
         // App\Providers\BroadcastServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Spatie\Geocoder\GeocoderServiceProvider::class,
-        Spatie\CookieConsent\CookieConsentServiceProvider::class,
-        Spatie\EloquentSortable\EloquentSortableServiceProvider::class,
         Unicodeveloper\Paystack\PaystackServiceProvider::class,
 
     ],
@@ -261,7 +252,6 @@ return [
         'File' => Illuminate\Support\Facades\File::class,
         'Gate' => Illuminate\Support\Facades\Gate::class,
         'Hash' => Illuminate\Support\Facades\Hash::class,
-        'Http' => Illuminate\Support\Facades\Http::class,
         'Lang' => Illuminate\Support\Facades\Lang::class,
         'Log' => Illuminate\Support\Facades\Log::class,
         'Mail' => Illuminate\Support\Facades\Mail::class,
@@ -287,9 +277,6 @@ return [
         'Geocoder' => Spatie\Geocoder\Facades\Geocoder::class,
         'DotenvEditor' => Brotzka\DotenvEditor\DotenvEditorFacade::class,
         'Paystack' => Unicodeveloper\Paystack\Facades\Paystack::class,
-        'Zipper' => Chumper\Zipper\Zipper::class,
-        'ReCaptcha' => Biscolab\ReCaptcha\Facades\ReCaptcha::class,
-        'Pusher' => Pusher\Pusher::class,
 
         //'Socialite' => Laravel\Socialite\Facades\Socialite::class,
     ],

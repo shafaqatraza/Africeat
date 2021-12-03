@@ -62,11 +62,11 @@
     <!-- CKEditor -->
     <script src="{{ asset('ckeditor') }}/ckeditor.js"></script>
     <script>
-        "use strict";
         CKEDITOR.replace('ckeditor', {
             removePlugins: 'sourcearea',
             filebrowserUploadUrl: "{{route('upload', ['_token' => csrf_token() ])}}",
             filebrowserUploadMethod: 'form',
+            //allowedContent: 'p h1{text-align}; a[!href]; strong em; p(tip)'
         });
     </script>
 @endsection

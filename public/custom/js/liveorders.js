@@ -1,5 +1,4 @@
 
-"use strict";
 var liveOrders=null;
 
 function getLiveOrders(){
@@ -8,10 +7,10 @@ function getLiveOrders(){
     liveOrders.accepted=response.data.accepted;
     liveOrders.done=response.data.done;
     liveOrders.calculateBiggest()
-    
+    console.log(response.data);
   })
   .catch(function (error) {
-    
+    console.log(error);
   });
 };
 
@@ -31,25 +30,26 @@ window.onload = function () {
       },
       methods:{
         calculateBiggest(){
+          //audio.play();
           if(this.biggestBefore==null){
             //initial -- loop over the neworders to find the biggest it
-            
+            console.log("initial");
             this.biggestBefore=this.findBiggest();
-            
+            console.log(this.biggestBefore);
             welcomeAudio.play();
           }else{
             //on update
             //Find biggest
-            
+            console.log("update");
             var newBiggest=this.findBiggest();
             if(newBiggest>this.biggestBefore){
               //Set new biggest
-              
+              console.log("bigger order found");
               this.biggestBefore=newBiggest;
-              
+              console.log("play sound");
               audio.play();
             }else{
-              
+              console.log("Same, do nothing");
             }
           }
         },

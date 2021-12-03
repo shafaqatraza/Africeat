@@ -2,29 +2,21 @@
 
 namespace App;
 
-use App\SmsVerification;
-use Carbon\Carbon;
-use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Laravel\Cashier\Billable;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
+use Laravel\Cashier\Billable;
+
 use Twilio\Rest\Client;
-use App\Traits\HasConfig;
-use Akaunting\Module\Facade as Module;
-use Illuminate\Database\Eloquent\SoftDeletes;
+
+use App\SmsVerification;
 
 class User extends Authenticatable
 {
-    use HasFactory;
     use Notifiable;
     use HasRoles;
     use Billable;
-    use HasConfig;
-    use SoftDeletes;
-
-    protected $modelName="App\User";
 
     /**
      * The attributes that are mass assignable.
@@ -32,7 +24,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'phone', 'api_token', 'birth_date', 'working', 'lat', 'lng', 'numorders', 'rejectedorders','restaurant_id',
+        'name', 'email', 'password', 'phone', 'api_token','birth_date'
     ];
 
     /**
@@ -41,7 +33,7 @@ class User extends Authenticatable
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token', 'api_token',
+        'password', 'remember_token', 'api_token'
     ];
 
     /**
@@ -54,87 +46,27 @@ class User extends Authenticatable
         'phone_verified_at' => 'datetime',
     ];
 
-    public function getAcceptanceratingAttribute()
-    {
-        if ($this->numorders == 0) {
-            return 'No orders';
-        } else {
-            return round(((1 - ($this->rejectedorders / $this->numorders)) * 100), 2);
-        }
-    }
-
-    public function getExtraMenus(){
-        $menus=[];
-        if($this->hasRole('admin')){
-            foreach (Module::all() as $key => $module) {
-                if(is_array($module->get('adminmenus'))){
-                    foreach ($module->get('adminmenus') as $key => $menu) {
-                       array_push($menus,$menu);
-                    }
-                }
-            }
-        }else if($this->hasRole('owner')){
-            foreach (Module::all() as $key => $module) {
-                if(is_array($module->get('ownermenus'))){
-                    foreach ($module->get('ownermenus') as $key => $menu) {
-                       array_push($menus,$menu);
-                    }
-                }
-            }
-        }
-        return $menus;
-    }
-
     public function restorant()
     {
-        return $this->hasOne(\App\Restorant::class);
-    }
-
-    public function restaurant()
-    {
-        return $this->hasOne(\App\Restorant::class,'id','restaurant_id');
-    }
-
-    public function restaurants()
-    {
-        return $this->hasMany(\App\Restorant::class);
-    }
-
-    
-
-    public function plan()
-    {
-        return $this->hasOne(\App\Plans::class, 'id', 'plan_id');
+        return $this->hasOne('App\Restorant');
     }
 
     public function mplanid()
     {
-        return $this->plan_id ? $this->plan_id : intval(config('settings.free_pricing_id'));
+        return $this->plan_id?$this->plan_id:intval(env('FREE_PRICING_ID',"1"));
     }
 
-    public function addresses()
-    {
-        return $this->hasMany(\App\Address::class)->where(['address.active' => 1]);
+    public function addresses(){
+        return $this->hasMany('App\Address')->where(['address.active' => 1]);
     }
 
-    public function paths()
-    {
-        return $this->hasMany(\App\Paths::class, 'user_id', 'id')->where('created_at', '>=', Carbon::now()->subHours(2));
-    }
-
-    public function orders()
-    {
-        return $this->hasMany(\App\Order::class, 'client_id', 'id');
-    }
-
-    public function driverorders()
-    {
-        return $this->hasMany(\App\Order::class, 'driver_id', 'id');
+    public function orders(){
+        return $this->hasMany('App\Order','client_id','id');
     }
 
     public function routeNotificationForOneSignal()
     {
-        return ['include_external_user_ids' => [$this->id.'']];
+        return ['include_external_user_ids' => [$this->id.""]];
     }
 
     public function routeNotificationForTwilio()
@@ -158,8 +90,8 @@ class User extends Authenticatable
     {
         $code = random_int(100000, 999999);
         $this->forceFill(['verification_code' => $code])->save();
-        $client = new Client(config('settings.twilio_sid'), config('settings.twilio_auth_token'));
-        $body = __('Hi').' '.$this->name.".\n\n".__('Your verification code is').': '.$code;
-        $client->messages->create($this->phone, ['from' => config('settings.twilio_from'), 'body' => $body]);
+        $client = new Client(env('TWILIO_SID'), env('TWILIO_AUTH_TOKEN'));
+        $body = __('Hi')." ".$this->name.".\n\n".__("Your verification code is").": ".$code;
+        $client->messages->create($this->phone,["from" => env('TWILIO_FROM',""), "body" => $body]);
     }
 }

@@ -15,6 +15,6 @@
   </div>
   <br />
 
-  @if(config('settings.is_demo') && config('settings.enable_stripe'))
+  @if(env('IS_DEMO', false) && env('ENABLE_STRIPE', false))
     @include('cart.democards')    
   @endif

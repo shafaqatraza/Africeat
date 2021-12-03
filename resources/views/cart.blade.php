@@ -12,9 +12,6 @@
 
       <div class="container">
 
-
-        <x:notify-messages />
-
           <div class="row">
 
             <!-- Left part -->
@@ -23,100 +20,30 @@
               <!-- List of items -->
               @include('cart.items')
 
-                <form id="order-form" role="form" method="post" action="{{route('order.store')}}" autocomplete="off" enctype="multipart/form-data">
+              @if (count($timeSlots)>0)
+
+              <form id="order-form" role="form" method="post" action="{{route('order.store')}}" autocomplete="off" enctype="multipart/form-data">
                 @csrf
-                @if(!config('settings.social_mode'))
-
-                    @if (config('app.isft')&&count($timeSlots)>0)
-                    <!-- FOOD TIGER -->
-                        <!-- Delivery method -->
-                        @if($restorant->can_pickup == 1)
-                            @if($restorant->can_deliver == 1)
-                              @include('cart.delivery')
-                            @endif
-                        @endif
-
-                        <!-- Delivery time slot -->
-                        @include('cart.time')
-
-                        <!-- Delivery address -->
-                        <div id='addressBox'>
-                            @include('cart.address')
-                        </div>
-
-                        <!-- Custom Fields -->
-                        @include('cart.customfields')
-
-                        <!-- Comment -->
-                        @include('cart.comment')
-
-                    @elseif(config('app.isqrsaas')&&count($timeSlots)>0)
-
-                      <!-- QRSAAS -->
-                      
-                      <!-- DINE IN OR TAKEAWAY -->
-                      @if (config('settings.enable_pickup'))
-                      
-                          @if (in_array("poscloud", config('global.modules',[])) || in_array("deliveryqr", config('global.modules',[])) )
-                            <!-- We have POS in QR -->
-                            @include('cart.localorder.dineiintakeawaydeliver')
-
-                            <!-- Delivery adress -->
-                            <div class="qraddressBox" style="display: none">
-                              @include('cart.newaddress')
-                              <br />
-                            </div>
-                            
-                            
-                           
-                          @else
-                             <!-- Simple QR -->
-                            @include('cart.localorder.dineiintakeaway')
-                          @endif
-                          
-                          <!-- Takeaway time slot -->
-                          <div class="takeaway_picker" style="display: none">
-                              @include('cart.time')
-                          </div>
-                      @endif
-
-                      <!-- LOCAL ORDERING -->
-                      @include('cart.localorder.table')
-
-                      <!-- Local Order Phone -->
-                      @include('cart.localorder.phone')
-
-                      <!-- Custom Fields -->
-                      @include('cart.customfields')
-
-                      <!-- Comment -->
-                      @include('cart.comment')
-                        
-
-                    @endif
-                @else
-                    <!-- Social MODE -->
-
-                    @if(count($timeSlots)>0)
-                        <!-- Delivery method -->
-                        @include('cart.delivery')
-
-                        <!-- Delivery time slot -->
-                        @include('cart.time')
-
-                        <!-- Custom Fields  -->
-                        @include('cart.customfields')
-
-                        <!-- Delivery adress -->
-                        @include('cart.newaddress')
-
-                        <!-- Client informations -->
-                        @include('cart.newclient')
-
-                        <!-- Comment -->
-                        @include('cart.comment')
-                    @endif
+                <!-- Delivery method -->
+                @if (env('ENABLE_PICKUP',true))
+                  @if (!env('DISABLE_DELIVER',false))
+                    @include('cart.delivery')
+                  @endif
                 @endif
+
+
+                <!-- Delivery time slot -->
+                @include('cart.time')
+
+                <!-- Delivery address -->
+                <div id='addressBox'>
+                  @include('cart.address')
+                </div>
+
+                <!-- Comment -->
+                @include('cart.comment')
+
+              @endif
 
               <!-- Restaurant -->
               @include('cart.restaurant')
@@ -144,23 +71,12 @@
   </section>
 @endsection
 @section('js')
-
-  <script async defer src= "https://maps.googleapis.com/maps/api/js?key=<?php echo config('settings.google_maps_api_key'); ?>&callback=initAddressMap"></script>
-  <!-- Stripe -->
+  <script async defer src= "https://maps.googleapis.com/maps/api/js?key=<?php echo env('GOOGLE_MAPS_API_KEY',''); ?>&callback=initAddressMap"></script>
   <script src="https://js.stripe.com/v3/"></script>
   <script>
-    "use strict";
-    var RESTORANT = <?php echo json_encode($restorant) ?>;
-    var STRIPE_KEY="{{ config('settings.stripe_key') }}";
-    var ENABLE_STRIPE="{{ config('settings.enable_stripe') }}";
-    var SYSTEM_IS_QR="{{ config('app.isqrexact') }}";
-    var SYSTEM_IS_WP="{{ config('app.iswp') }}";
-    var initialOrderType = 'delivery';
-    if(RESTORANT.can_deliver == 1 && RESTORANT.can_pickup == 0){
-        initialOrderType = 'delivery';
-    }else if(RESTORANT.can_deliver == 0 && RESTORANT.can_pickup == 1){
-        initialOrderType = 'pickup';
-    }
+    var STRIPE_KEY="{{ env('STRIPE_KEY',"") }}";
+    var ENABLE_STRIPE="{{ env('ENABLE_STRIPE',false) }}";
+    var initialOrderType="{{ !env('DISABLE_DELIVER',false)?'delivery':'pickup' }}";
   </script>
   <script src="{{ asset('custom') }}/js/checkout.js"></script>
 @endsection

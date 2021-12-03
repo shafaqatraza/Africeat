@@ -7,19 +7,11 @@
 
         <meta name="csrf-token" content="{{ csrf_token() }}">
 
-
-
-        @yield('title')
         <title>{{ config('app.name', 'FoodTiger') }}</title>
-
         <!-- Favicon -->
-        <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
-        <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-
+        <link href="{{ asset('argon') }}/img/brand/favicon.png" rel="icon" type="image/png">
         <!-- Fonts -->
-        <link href="{{ asset('css') }}/gfonts.css" rel="stylesheet">
-        
+        <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700" rel="stylesheet">
         <!-- Icons -->
         <link href="{{ asset('argon') }}/vendor/nucleo/css/nucleo.css" rel="stylesheet">
         <link href="{{ asset('argon') }}/vendor/@fortawesome/fontawesome-free/css/all.min.css" rel="stylesheet">
@@ -28,42 +20,24 @@
         <!-- Argon CSS -->
         <link type="text/css" href="{{ asset('custom') }}/css/custom.css" rel="stylesheet">
         <!-- Select2 -->
+        
         <link type="text/css" href="{{ asset('custom') }}/css/select2.min.css" rel="stylesheet">
-
+        <!-- Jasny File Upload -->
+        
         <!-- Latest compiled and minified CSS -->
-        <link rel="stylesheet" href="{{ asset('vendor') }}/jasny/css/jasny-bootstrap.min.css">
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/jasny-bootstrap/4.0.0/css/jasny-bootstrap.min.css">
         <!-- Flatpickr datepicker -->
-        <link rel="stylesheet" href="{{ asset('vendor') }}/flatpickr/flatpickr.min.css">
-
-         <!-- Font Awesome Icons -->
-        <link href="{{ asset('argonfront') }}/css/font-awesome.css" rel="stylesheet" />
-
-        <!-- Lottie -->
-        <script src="https://unpkg.com/@lottiefiles/lottie-player@latest/dist/lottie-player.js"></script>
-
-
-        <!-- Range datepicker -->
-        <link rel="stylesheet" type="text/css" href="{{ asset('vendor') }}/daterangepicker/daterangepicker.css" />
-
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         @yield('head')
         @laravelPWA
-        @include('layouts.rtl')
-
-        <!-- Custom CSS defined by admin -->
-        <link type="text/css" href="{{ asset('byadmin') }}/back.css" rel="stylesheet">
-
-
-
-
+        
     </head>
     <body class="{{ $class ?? '' }}">
         @auth()
             <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
                 @csrf
             </form>
-            @if(\Request::route()->getName() != "order.success"&&(\Request::route()->getName() != "selectpay"))
-                @include('layouts.navbars.sidebar')
-            @endif
+            @include('layouts.navbars.sidebar')
         @endauth
 
         <div class="main-content">
@@ -81,94 +55,50 @@
         <script src="{{ asset('argonfront') }}/js/core/popper.min.js" type="text/javascript"></script>
         <script src="{{ asset('argon') }}/vendor/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
 
-        @yield('topjs')
-
-        <script>
-            var t="<?php echo 'translations'.App::getLocale() ?>";
-           window.translations = {!! Cache::get('translations'.App::getLocale(),"[]") !!};
-           
-           
-        </script>
-
+        @stack('js')
         <!-- Navtabs -->
         <script src="{{ asset('argonfront') }}/js/core/jquery.min.js" type="text/javascript"></script>
-
+        
 
         <script src="{{ asset('argon') }}/vendor/bootstrap-datepicker/dist/js/bootstrap-datepicker.min.js"></script>
 
         <!-- Nouslider -->
         <script src="{{ asset('argon') }}/vendor/nouislider/distribute/nouislider.min.js" type="text/javascript"></script>
 
+        <!-- Argon JS -->
+        <script src="{{ asset('argon') }}/js/argon.js?v=1.0.0"></script>
+
         <!-- Latest compiled and minified JavaScript -->
-        <script src="{{ asset('vendor') }}/jasny/js/jasny-bootstrap.min.js"></script>
+        <script src="//cdnjs.cloudflare.com/ajax/libs/jasny-bootstrap/4.0.0/js/jasny-bootstrap.min.js"></script>
         <!-- Custom js -->
         <script src="{{ asset('custom') }}/js/orders.js"></script>
          <!-- Custom js -->
         <script src="{{ asset('custom') }}/js/mresto.js"></script>
         <!-- AJAX -->
-
+        
         <!-- SELECT2 -->
         <script src="{{ asset('custom') }}/js/select2.js"></script>
-        <script src="{{ asset('vendor') }}/select2/select2.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/select2@4.0.13/dist/js/select2.min.js"></script>
 
-        <!-- DATE RANGE PICKER -->
-        <script type="text/javascript" src="{{ asset('vendor') }}/moment/moment.min.js"></script>
-        <script type="text/javascript" src="{{ asset('vendor') }}/daterangepicker/daterangepicker.min.js"></script>
-
-        <!-- All in one -->
-        <script src="{{ asset('custom') }}/js/js.js?id={{ config('config.version')}}"></script>
-
-        <!-- Argon JS -->
-        <script src="{{ asset('argon') }}/js/argon.js?v=1.0.0"></script>
-
-         <!-- Import Vue -->
-        <script src="{{ asset('vendor') }}/vue/vue.js"></script>
-
-        <!-- Import AXIOS --->
-        <script src="{{ asset('vendor') }}/axios/axios.min.js"></script>
-
-        <!-- Flatpickr datepicker -->
-        <script src="{{ asset('vendor') }}/flatpickr/flatpickr.js"></script>
-
-        <!-- Notify JS -->
-        <script src="{{ asset('custom') }}/js/notify.min.js"></script>
-
-         <!-- Cart custom sidemenu -->
-        <script src="{{ asset('custom') }}/js/cartSideMenu.js"></script>
-
-
-        <script>
-            var ONESIGNAL_APP_ID = "{{ config('settings.onesignal_app_id') }}";
-            var USER_ID = '{{  auth()->user()&&auth()->user()?auth()->user()->id:"" }}';
-            var PUSHER_APP_KEY = "{{ config('broadcasting.connections.pusher.key') }}";
-            var PUSHER_APP_CLUSTER = "{{ config('broadcasting.connections.pusher.options.cluster') }}";
+        <!-- Google Map -->
+        <script async defer
+            src= "https://maps.googleapis.com/maps/api/js?libraries=geometry,drawing&key=<?php echo env('GOOGLE_MAPS_API_KEY',''); ?>">
         </script>
-        @if (auth()->user()!=null&&auth()->user()->hasRole('staff'))
-            <script>
-                //When staff, use the owner
-                USER_ID = '{{  auth()->user()->restaurant->user_id }}';
-            </script>
-        @endif
-       
-
+         <script src="{{ asset('custom') }}/js/rmap.js"></script>
+         <!-- Import Vue -->
+        <script src="https://unpkg.com/vue@2.1.6/dist/vue.js"></script>
+        <!-- Import AXIOS --->
+        <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+        <!-- Flatpickr datepicker -->
+        <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
         <!-- OneSignal -->
-        @if(strlen( config('settings.onesignal_app_id'))>4)
-            <script src="{{ asset('vendor') }}/OneSignalSDK/OneSignalSDK.js" async=""></script>
-            <script src="{{ asset('custom') }}/js/onesignal.js"></script>
-        @endif
+        <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
+        <script>
+             var ONESIGNAL_APP_ID = "{{ env('ONESIGNAL_APP_ID') }}";
+             var USER_ID = '{{  auth()->user()?auth()->user()->id:"" }}';
+        </script>
+        <script src="{{ asset('custom') }}/js/onesignal.js"></script>
 
-        @stack('js')
         @yield('js')
-
-        <script src="{{ asset('custom') }}/js/rmap.js"></script>
-
-         <!-- Pusher -->
-         @if(strlen( config('broadcasting.connections.pusher.app_id'))>2)
-            <script src="https://js.pusher.com/7.0/pusher.min.js"></script>
-            <script src="{{ asset('custom') }}/js/pusher.js"></script>
-        @endif
-
-        <!-- Custom JS defined by admin -->
-        <?php echo file_get_contents(base_path('public/byadmin/back.js')) ?>
     </body>
 </html>

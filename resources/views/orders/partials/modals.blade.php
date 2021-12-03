@@ -57,7 +57,39 @@
         </div>
         </div>
     </div>
+
 </div>
+<div class="modal fade" id="modal-asign-driver" tabindex="-1" role="dialog" aria-labelledby="modal-form" aria-hidden="true">
+    <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modal-title-new-item">{{ __('Assign Driver') }}</h3>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body p-0">
+                <div class="card bg-secondary shadow border-0">
+                    <div class="card-body px-lg-5 py-lg-5">
+                        <form id="form-assing-driver" method="GET" action="">
+                            <div class="form-group{{ $errors->has('driver') ? ' has-danger' : '' }}">
+                                <label class="form-control-label" for="driver">{{ __('Assign Driver') }}</label>
+                                <select class="form-control select2" name="driver" id="assign-driver-select">
+                                    <option disabled selected value> -- Select a Driver -- </option>
+                                    @foreach ($drivers as $driver)
+                                        <option value="{{ $driver->id }}">{{$driver->name}}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-primary my-4">{{ __('Save') }}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 <div class="modal fade" id="modal-rate-restaurant" tabindex="-1" role="dialog" aria-labelledby="modal-form" aria-hidden="true">
     <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
@@ -73,7 +105,7 @@
                     <div class="card-body px-lg-5 py-lg-5">
                         <form role="form" method="post" action="{{ route('rate.order', isset($order)?$order:"") }}">
                         @csrf
-
+                        
                         <input type="hidden" id="rating_value" name="ratingValue">
                         <section class='rating-widget'>
                         <!-- Rating Stars Box -->
@@ -125,7 +157,7 @@
             <div class="modal-body p-0">
                 <div class="card bg-secondary shadow border-0">
                     <div class="card-body px-lg-5 py-lg-5">
-                    <form role="form" method="GET" id="form-time-to-prepare" action="">
+                    <form role="form" method="GET" id="form-time-to-prepare" action="{{ route('update.status', ['accepted_by_restaurant',isset($order)?$order:""]) }}">
                         <div class="form-group">
                             <input type="hidden" name="time_to_prepare" id="time_to_prepare"/>
                             @for($i=5; $i<=150; $i+=5)
@@ -142,59 +174,4 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="modal-order-item-count" tabindex="-1" role="dialog" aria-labelledby="modal-form" aria-hidden="true">
-    <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 class="modal-title" id="modal-title-new-item">{{ __('Quantity') }}</h3>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">×</span>
-                </button>
-            </div>
-            <div class="modal-body p-0">
-                <div class="card bg-secondary shadow border-0">
-                    <div class="card-body px-lg-5 py-lg-5">
-                    <form role="form" method="POST" id="form-set_qty" action="{{ route('orders.update',['order'=>isset($order)?$order->id:1]) }}">
-                        @csrf
-                        @method('PATCH')
-                        <div class="form-group">
-                            <label class="form-control-label" for="item_qty">{{ __('Quantity') }}</label>
-                            <input min="0" class="form-control form-control " type="number" name="item_qty" id="item_qty"/>
-                            <input type="hidden" name="pivot_id" id="pivot_id"/>
-                            <input type="hidden" name="order_id" id="order_id"/>
-                        </div>
-                        <div class="text-center">
-                            <button type="submit" id="btn-submit-time-prepare" class="btn btn-primary my-4" id="save-ratings">{{ __('Save') }}</button>
-                        </div>
-                    </form>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="modal-asign-driver" tabindex="-1" role="dialog" aria-labelledby="modal-form" aria-hidden="true">
-        <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title" id="modal-title-new-item">{{ __('Assign Driver') }}</h3>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body p-0">
-                    <div class="card bg-secondary shadow border-0">
-                        <div class="card-body px-lg-5 py-lg-5">
-                            <form id="form-assing-driver" method="GET" action="">
-                                @include('partials.fields',$fields)
-                                <div class="text-center">
-                                    <button type="submit" class="btn btn-primary my-4">{{ __('Save') }}</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 

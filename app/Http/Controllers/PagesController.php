@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Pages;
 use Illuminate\Http\Request;
+use App\Pages;
 
 class PagesController extends Controller
 {
@@ -14,13 +14,11 @@ class PagesController extends Controller
      */
     public function index(Pages $pages)
     {
-        if (auth()->user() && auth()->user()->hasRole('admin')) {
+        if(auth()->user() && auth()->user()->hasRole('admin')){
             return view('pages.index', ['pages' => $pages->paginate(10)]);
-        } elseif (auth()->guest()) {
+        }else if(auth()->guest()){
             return redirect()->route('front');
-        } else {
-            return redirect()->route('orders.index')->withStatus(__('No Access'));
-        }
+        }else return redirect()->route('orders.index')->withStatus(__('No Access'));
     }
 
     /**
@@ -30,13 +28,11 @@ class PagesController extends Controller
      */
     public function create()
     {
-        if (auth()->user() && auth()->user()->hasRole('admin')) {
+        if(auth()->user() && auth()->user()->hasRole('admin')){
             return view('pages.create');
-        } elseif (auth()->guest()) {
+        }else if(auth()->guest()){
             return redirect()->route('front');
-        } else {
-            return redirect()->route('orders.index')->withStatus(__('No Access'));
-        }
+        }else return redirect()->route('orders.index')->withStatus(__('No Access'));
     }
 
     /**
@@ -50,9 +46,6 @@ class PagesController extends Controller
         $page = new Pages;
         $page->title = strip_tags($request->title);
         $page->content = $request->input('ckeditor');
-        if(!$page->content){
-            $page->content="";
-        }
 
         $page->save();
 
@@ -67,17 +60,7 @@ class PagesController extends Controller
      */
     public function show(Pages $page)
     {
-        return view('pages.show', ['page' => $page]);
-    }
-
-    public function blog($slug)
-    {
-        $pages = Pages::where('id', '>', 0)->get();
-        foreach ($pages as $key => $page) {
-            if ($page->slug == $slug) {
-                return view('pages.show', ['page' => $page]);
-            }
-        }
+        return view('pages.show',['page' => $page]);
     }
 
     /**
@@ -88,13 +71,11 @@ class PagesController extends Controller
      */
     public function edit(Pages $page)
     {
-        if (auth()->user() && auth()->user()->hasRole('admin')) {
-            return view('pages.edit', ['page' => $page]);
-        } elseif (auth()->guest()) {
+        if(auth()->user() && auth()->user()->hasRole('admin')){
+            return view('pages.edit',['page' => $page]);
+        }else if(auth()->guest()){
             return redirect()->route('front');
-        } else {
-            return redirect()->route('orders.index')->withStatus(__('No Access'));
-        }
+        }else return redirect()->route('orders.index')->withStatus(__('No Access'));
     }
 
     /**
@@ -110,7 +91,6 @@ class PagesController extends Controller
         $page->content = $request->input('ckeditor');
 
         $page->update();
-
         return redirect()->route('pages.index')->withStatus(__('Page successfully updated!'));
     }
 
@@ -134,15 +114,14 @@ class PagesController extends Controller
 
         return response()->json([
             'data' => [
-                'showAsLink' => $page->showAsLink,
+                'showAsLink' => $page->showAsLink
             ],
             'status' => true,
-            'errMsg' => '',
+            'errMsg' => ''
         ]);
     }
 
-    public function getPages()
-    {
+    public function getPages(){
         return response()->json([
             'data' => Pages::where(['showAsLink'=>1])->get(),
         ]);

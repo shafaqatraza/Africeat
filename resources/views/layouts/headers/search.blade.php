@@ -12,7 +12,7 @@
     <div class="container mt--350">
         <h1><?php echo config('global.header_title') ?></h1>
         <p><?php echo config('global.header_subtitle') ?></p>
-        @if(config('settings.is_demo'))
+        @if(env('is_demo', false))
                     <div class="row">
                         <div class=""><div class="blob red"></div></div>
                         <div class=""> <span class="description "><strong>Demo info</strong>: Our demo restorants deliver in: <a href="?location=Bronx,NY,USA">Bronx</a>, <a href="?location=Manhattan, New York, NY, USA">Manhattn</a>, <a href="?location=Queens, New York, NY, USA">Queens</a>, <a href="?location=Brooklyn, New York, NY, USA">Brooklyn</a></span></div>
@@ -21,7 +21,7 @@
                 @endif
         <div class="row">
             <div class="col-md-4">
-                @if(config('settings.enable_location_search'))
+                @if(env('ENABLE_LOCATION_SEARCH',false))
                 <form action="{{ route('front') }}">
                     <div class="form-group{{ $errors->has('location') ? ' has-danger' : '' }}">
                         <div class="input-group mb-4">
@@ -36,14 +36,15 @@
                             @endif
                         </div>
                     </div>
-                    <input type="hidden" value="" name="expedition" id="expedition"/>
+
                 </div>
                     <div class="col-md-4">
-                        <button type="submit" class="btn btn-danger btn_delivery_pickup" id="delivery">{{ __('Delivery') }}</button>
-                        <span>{{ __('or') }}</span>&nbsp;&nbsp;
-                        <button type="submit" class="btn btn-danger btn_delivery_pickup" id="pickup">{{ __('Pickup') }}</button>
+                        <button type="submit" class="btn btn-danger">{{ __('Find restaurants') }}</button>
                     </div>
                 </form>
+
+
+
                 @else
 
                 <form>

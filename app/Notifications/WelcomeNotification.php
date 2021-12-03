@@ -2,11 +2,11 @@
 
 namespace App\Notifications;
 
-use App\User;
 use Illuminate\Bus\Queueable;
+use Illuminate\Notifications\Notification;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
-use Illuminate\Notifications\Notification;
+use App\User;
 
 class WelcomeNotification extends Notification
 {
@@ -24,6 +24,7 @@ class WelcomeNotification extends Notification
         $this->user = $user;
     }
 
+    
     /**
      * Get the notification's delivery channels.
      *
@@ -43,19 +44,21 @@ class WelcomeNotification extends Notification
      */
     public function toMail($notifiable)
     {
-        if ($this->user->active.'' == '1') {
-            return (new MailMessage)
-            ->greeting(__('notifications_hello', ['username' => $this->user->name]))
-            ->subject(__('notifications_thanks', ['app_name' => config('app.name')]))
-            ->action(__('notifications_visit', ['app_name' => config('app.name')]), url(config('app.url')))
-            ->line(__('notifications_regdone'));
-        } else {
-            return (new MailMessage)
-            ->greeting(__('notifications_hello', ['username' => $this->user->name]))
-            ->subject(__('notifications_thanks', ['app_name' => config('app.name')]))
-            ->action(__('notifications_visit', ['app_name' => config('app.name')]), url(config('app.url')))
-            ->line(__('notifications_adminapprove'));
-        }
+
+       if($this->user->active.""=="1"){
+        return (new MailMessage)
+            ->greeting(__('Hello ').$this->user->name)
+            ->subject(__('Thanks for registeriing on ').env('APP_NAME',""))
+            ->action(__('Visit')." ".env('APP_NAME',""), url(env('APP_URL',"")))
+            ->line(__('We are happy to have you onboard.'));;
+       }else{
+        return (new MailMessage)
+            ->greeting(__('Hello ').$this->user->name)
+            ->subject(__('Thanks for registeriing on ').env('APP_NAME',""))
+            ->action(__('Visit')." ".env('APP_NAME',""), url(env('APP_URL',"")))
+            ->line(__('Soon as admin approves your account, we will let you know.'));;
+       }
+        
     }
 
     /**
@@ -66,6 +69,8 @@ class WelcomeNotification extends Notification
      */
     public function toArray($notifiable)
     {
-        return [];
+        return [
+            //
+        ];
     }
 }

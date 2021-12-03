@@ -17,8 +17,6 @@ trait CreatesApplication
 
         $app->make(Kernel::class)->bootstrap();
 
-        $_SERVER['HTTP_HOST']="localhost";
-
         return $app;
     }
 }

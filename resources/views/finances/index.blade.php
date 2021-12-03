@@ -11,7 +11,7 @@
             @isset($showFeeTerms))
                 @include('finances.feeterms')
             @endisset
-            @if(config('settings.enable_stripe_connect')&&isset($showStripeConnect)?$showStripeConnect:false)
+            @if(env('ENABLE_STRIPE_CONNECT',false)&&isset($showStripeConnect)?$showStripeConnect:false)
                 @include('finances.stripe')
             @endif
         </div>

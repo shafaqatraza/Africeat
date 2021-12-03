@@ -2,17 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use GuzzleHttp\Client;
-use GuzzleHttp\Exception\GuzzleException;
 use Illuminate\Http\Request;
 use Twilio\Jwt\ClientToken;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Client;
 
 class SmsController extends Controller
 {
-    protected $code;
-    protected $smsVerifcation;
+    protected $code, $smsVerifcation;
 
-    public function __construct()
+    function __construct()
     {
         $this->smsVerifcation = new \App\SmsVerification();
     }
@@ -28,20 +27,23 @@ class SmsController extends Controller
 
     public function verifyContact(Request $request)
     {
-        $smsVerifcation = $this->smsVerifcation::where('contact_number', '=', $request->contact_number)->latest() //show the latest if there are multiple
+        $smsVerifcation = $this->smsVerifcation::where('contact_number','=',$request->contact_number)->latest() //show the latest if there are multiple
                                                                                                     ->first();
-        if ($request->code == $smsVerifcation->code) {
-            $request['status'] = 'verified';
+        if($request->code == $smsVerifcation->code)
+        {
+            $request["status"] = 'verified';
 
-            
+            //return $smsVerifcation->updateModel($request);
             $smsVerifcation->updateModel($request);
 
-            $msg['message'] = 'verified';
-
+            $msg["message"] = "verified";
+            //return $msg;
             return redirect()->route('home');
-        } else {
-            $msg['message'] = 'not verified';
-
+        }
+        else
+        {
+            $msg["message"] = "not verified";
+            //return $msg;
 
             return redirect()->route('sms.verify');
         }
@@ -51,18 +53,19 @@ class SmsController extends Controller
     {
         $accountSid = config('app.twilio')['TWILIO_ACCOUNT_SID'];
         $authToken = config('app.twilio')['TWILIO_AUTH_TOKEN'];
-        try {
+        try{
             $client = new Client(['auth' => [$accountSid, $authToken]]);
             $result = $client->post('https://api.twilio.com/2010-04-01/Accounts/'.$accountSid.'/Messages.json',
             ['form_params' => [
-                'Body' => 'CODE: '.$request->code, //set message body
+                'Body' => 'CODE: '. $request->code, //set message body
                 'To' => $request->contact_number,
-                'From' => '+16504108569', //we get this number from twilio
+                'From' => '+16504108569' //we get this number from twilio
             ]]);
 
             return $result;
-        } catch (Exception $e) {
-            echo 'Error: '.$e->getMessage();
+        }
+        catch (Exception $e){
+            echo "Error: " . $e->getMessage();
         }
     }
 

@@ -17,8 +17,8 @@
                                 <h3 class="mb-0">{{ __('Restaurants') }}</h3>
                             </div>
                             <div class="col-4 text-right">
-                                <a href="{{ route('admin.restaurants.create') }}" class="btn btn-sm btn-primary">{{ __('Add Restaurant') }}</a>
-                                @if(auth()->user()->hasRole('admin') && config('settings.enable_import_csv'))
+                                <a href="{{ route('restorants.create') }}" class="btn btn-sm btn-primary">{{ __('Add Restaurant') }}</a>
+                                @if(auth()->user()->hasRole('admin') && env('ENABLE_IMPORT_CSV', true))
                                     <button type="button" class="btn btn-sm btn-primary" data-toggle="modal" data-target="#modal-import-restaurants">{{ __('Import from CSV') }}</button>
                                 @endif
                             </div>
@@ -44,13 +44,13 @@
                             <tbody>
                                 @foreach ($restorants as $restorant)
                                     <tr>
-                                        <td><a href="{{ route('admin.restaurants.edit', $restorant) }}">{{ $restorant->name }}</a></td>
+                                        <td><a href="{{ route('restorants.edit', $restorant) }}">{{ $restorant->name }}</a></td>
                                         <td><img class="rounded" src={{ $restorant->icon }} width="50px" height="50px"></img></td>
-                                        <td>{{  $restorant->user?$restorant->user->name:__('Deleted') }}</td>
+                                        <td>{{ $restorant->user->name }}</td>
                                         <td>
-                                            <a href="mailto: {{ $restorant->user?$restorant->user->email:""  }}">{{  $restorant->user?$restorant->user->email:__('Deleted')  }}</a>
+                                            <a href="mailto:{{ $restorant->email }}">{{ $restorant->user->email }}</a>
                                         </td>
-                                        <td>{{ $restorant->created_at->locale(Config::get('app.locale'))->isoFormat('LLLL') }}</td>
+                                        <td>{{ $restorant->created_at->format(env('DATETIME_DISPLAY_FORMAT','d M Y H:i')) }}</td>
                                         <td>
                                            @if($restorant->active == 1)
                                                 <span class="badge badge-success">{{ __('Active') }}</span>
@@ -64,20 +64,19 @@
                                                     <i class="fas fa-ellipsis-v"></i>
                                                 </a>
                                                 <div class="dropdown-menu dropdown-menu-right dropdown-menu-arrow">
-                                                    <a class="dropdown-item" href="{{ route('admin.restaurants.edit', $restorant) }}">{{ __('Edit') }}</a>
-                                                    <a class="dropdown-item" href="{{ route('admin.restaurants.loginas', $restorant) }}">{{ __('Login as') }}</a>
-                                                    <form action="{{ route('admin.restaurants.destroy', $restorant) }}" method="post">
-                                                        @csrf
-                                                        @method('delete')
-                                                        @if($restorant->active == 0)
-                                                            <a class="dropdown-item" href="{{ route('restaurant.activate', $restorant) }}">{{ __('Activate') }}</a>
-                                                        @else
-                                                            <button type="button" class="dropdown-item" onclick="confirm('{{ __("Are you sure you want to deactivate this restaurant?") }}') ? this.parentElement.submit() : ''">
+
+                                                        <form action="{{ route('restorants.destroy', $restorant) }}" method="post">
+                                                            @csrf
+                                                            @method('delete')
+                                                            @if($restorant->active == 0)
+                                                                <a class="dropdown-item" href="{{ route('restaurant.activate', $restorant) }}">{{ __('Activate') }}</a>
+                                                            @endif
+                                                            <a class="dropdown-item" href="{{ route('restorants.edit', $restorant) }}">{{ __('Edit') }}</a>
+                                                            <button type="button" class="dropdown-item" onclick="confirm('{{ __("Are you sure you want to delete this user?") }}') ? this.parentElement.submit() : ''">
                                                                 {{ __('Deactivate') }}
                                                             </button>
-                                                        @endif
-                                                    </form>
-                                                    <a class="dropdown-item warning red" onclick="return confirm('Are you sure you want to delete this Restaurant from Database? This will aslo delete all data related to it. This is irreversible step.')"  href="{{ route('admin.restaurant.remove',$restorant)}}">{{ __('Delete') }}</a>
+                                                        </form>
+
                                                 </div>
                                             </div>
                                         </td>

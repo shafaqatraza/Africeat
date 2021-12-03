@@ -15,17 +15,23 @@
                     </div>
                     <h6 class="product-item_title">@{{ item.name }}</h6>
                     <p class="product-item_quantity">@{{ item.quantity }} x @{{ item.attributes.friendly_price }}</p>
-                    <div class="row">
-                        <button type="button" v-on:click="decQuantity(item.id)" :value="item.id" class="btn btn-outline-primary btn-icon btn-sm page-link btn-cart-radius">
-                            <span class="btn-inner--icon btn-cart-icon"><i class="fa fa-minus"></i></span>
-                        </button>
-                        <button type="button" v-on:click="incQuantity(item.id)" :value="item.id" class="btn btn-outline-primary btn-icon btn-sm page-link btn-cart-radius">
-                            <span class="btn-inner--icon btn-cart-icon"><i class="fa fa-plus"></i></span>
-                        </button>
-                        <button type="button" v-on:click="remove(item.id)"  :value="item.id" class="btn btn-outline-primary btn-icon btn-sm page-link btn-cart-radius">
-                            <span class="btn-inner--icon btn-cart-icon"><i class="fa fa-trash"></i></span>
-                        </button>
-                    </div>
+                    <ul class="pagination">
+                        <li class="page-item">
+                            <button v-on:click="decQuantity(item.id)" :value="item.id" class="page-link" tabindex="-1">
+                                <i class="fa fa-minus"></i>
+                            </button>
+                        </li>
+                        <li class="page-item">
+                            <button v-on:click="incQuantity(item.id)" :value="item.id" class="page-link" >
+                                <i class="fa fa-plus"></i>
+                            </button>
+                        </li>
+                        <li class="page-item">
+                            <button v-on:click="remove(item.id)"  :value="item.id" class="page-link" >
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>

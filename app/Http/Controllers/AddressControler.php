@@ -9,8 +9,8 @@ use Spatie\Geocoder\Geocoder;
 
 class AddressControler extends Controller
 {
-    protected $autocomepleteEndpoint = 'https://maps.googleapis.com/maps/api/place/autocomplete/json';
-    protected $detailsEndpoint = 'https://maps.googleapis.com/maps/api/place/details/json';
+    protected $autocomepleteEndpoint = "https://maps.googleapis.com/maps/api/place/autocomplete/json";
+    protected $detailsEndpoint = "https://maps.googleapis.com/maps/api/place/details/json";
 
     /**
      * Display a listing of the resource.
@@ -19,13 +19,15 @@ class AddressControler extends Controller
      */
     public function index()
     {
-        if (auth()->user()->hasRole('client')) {
+        if(auth()->user()->hasRole('client')){
+
             $addresses = Address::where(['user_id'=>auth()->user()->id])->where(['active'=>1])->get();
 
-            return view('addresses.index', ['addresses' => $addresses]);
-        } else {
+            return view('addresses.index',['addresses' => $addresses]);
+        }else{
             return redirect()->route('orders.index')->withStatus(__('No Access'));
         }
+
     }
 
     /**
@@ -53,13 +55,16 @@ class AddressControler extends Controller
         $address->lng = $request->lng;
         $address->apartment = $request->apartment ?? $request->apartment;
         $address->intercom = $request->intercom ?? $request->intercom;
-        $address->floor = $request->floor ?? $request->floor;
+        $address->floor =  $request->floor ?? $request->floor;
         $address->entry = $request->entry ?? $request->entry;
         $address->save();
+
+        //return redirect()->route('/cart-checkout')->withStatus(__('Address successfully added.'));
+
         return response()->json([
             'status' => true,
             'success_url' => redirect()->intended('/cart-checkout')->getTargetUrl(),
-            'msg' => 'Address successfully added!',
+            'msg' => 'Address successfully added!'
         ]);
     }
 
@@ -82,6 +87,7 @@ class AddressControler extends Controller
      */
     public function edit(Address $address)
     {
+
     }
 
     /**
@@ -101,7 +107,7 @@ class AddressControler extends Controller
         return response()->json([
             'status' => true,
             'success_url' => redirect()->intended('/cart-checkout')->getTargetUrl(),
-            'msg' => 'Address successfully updated!',
+            'msg' => 'Address successfully updated!'
         ]);
     }
 
@@ -113,14 +119,14 @@ class AddressControler extends Controller
      */
     public function destroy(Address $address)
     {
-        $address->active = 0;
+        $address->active=0;
         $address->save();
 
         return redirect()->route('addresses.index')->withStatus(__('Address successfully deactivated.'));
     }
 
-    public function orderAddress(Request $request)
-    {
+    public function orderAddress(Request $request){
+
         $address = Address::where(['id' => $request->addressID])->get()->first();
 
         return response()->json([
@@ -130,75 +136,77 @@ class AddressControler extends Controller
                 'lng' => $address->lng,
                 'address' => $address->address,
             ],
-            'msg' => '',
+            'msg' => ''
         ]);
     }
 
     public function newAddressAutocomplete()
     {
-        if (! isset($_GET['term'])) {
-            return response()->json(['results'=>[]]);
+        if(!isset($_GET['term'])){
+            return response()->json(array('results'=>[]));
         }
 
-        $term = $_GET['term'];
+        $term = $_GET["term"];
 
-        if (strlen($term) < 2) {
-            return response()->json(['results'=>[]]);
+        if(strlen($term)<2){
+            return response()->json(array('results'=>[]));
         }
 
-        $client = new \GuzzleHttp\Client();
+        $client=new \GuzzleHttp\Client();
 
-        $payload = [
-            'query' => [
-                'key' => config('settings.google_maps_api_key'),
-                'input' => $term,
-            ],
+        $payload=[
+            'query' => array(
+                'key' => env('GOOGLE_MAPS_API_KEY'),
+                'input' => $term
+            )
         ];
-        $response = $client->request('GET', $this->autocomepleteEndpoint, $payload);
+        $response= $client->request('GET', $this->autocomepleteEndpoint, $payload);
 
         if ($response->getStatusCode() !== 200) {
-            return response()->json(['results'=>[]]);
+            return response()->json(array('results'=>[]));
         }
 
         $responseDecoded = json_decode($response->getBody());
 
-        $matches = [];
-        if (isset($responseDecoded->predictions)) {
+        $matches=array();
+        if(isset($responseDecoded->predictions)){
+
             foreach ($responseDecoded->predictions as $key => $prediction) {
-                array_push($matches, ['id' => $prediction->place_id, 'text' => $prediction->description]);
+                array_push($matches,array('id' => $prediction->place_id, 'text' => $prediction->description));
             }
         }
 
-        $data = ['results'=>$matches];
-
+        $data = array('results'=>$matches);
         return response()->json($data);
     }
 
     public function newAdressPlaceDetails(Request $request)
     {
-        $itemToReturn = null;
-        $client = new \GuzzleHttp\Client();
+        $itemToReturn=null;
+        $client=new \GuzzleHttp\Client();
 
-        $payload = [
-            'query' => [
-                'key' => config('settings.google_maps_api_key'),
-                'place_id' => $request->place_id,
-            ],
+        $payload=[
+            'query' => array(
+                'key' => env('GOOGLE_MAPS_API_KEY'),
+                'place_id' => $request->place_id
+            )
         ];
 
-        $client = new \GuzzleHttp\Client();
-        $response = $client->request('GET', $this->detailsEndpoint, $payload);
+        $client=new \GuzzleHttp\Client();
+        $response= $client->request('GET', $this->detailsEndpoint, $payload);
 
         if ($response->getStatusCode() !== 200) {
-            return response()->json([
+            //return $itemToReturn;
+            return response()->json(array(
                 'status' => false,
-                'result' => [],
-            ]);
+                'result' => []
+            ));
         }
 
         $responseDecoded = json_decode($response->getBody());
 
-        if (isset($responseDecoded->result)) {
+        if(isset($responseDecoded->result)){
+
             $itemToReturn['google_place_id'] = $request->place_id;
 
             //Find the lat and lng
@@ -208,19 +216,22 @@ class AddressControler extends Controller
             //name
             $itemToReturn['name'] = $responseDecoded->result->name;
 
-            return response()->json([
+            //return $itemToReturn;
+            return response()->json(array(
                 'status' => true,
-                'result' => $itemToReturn,
-            ]);
-        } else {
-            return response()->json([
+                'result' => $itemToReturn
+            ));
+
+        }else{
+            //return null;
+            return response()->json(array(
                 'status' => false,
-                'result' => [],
-            ]);
+                'result' => []
+            ));
         }
     }
 
-    public function AddressInDeliveryArea(Request $request)
+    function AddressInDeliveryArea(Request $request)
     {
         $restaurant_id = $request->restaurant_id;
         $ids = $request->address_ids;
@@ -228,12 +239,14 @@ class AddressControler extends Controller
 
         $restorant = Restorant::select('radius')->where(['id' => $restaurant_id])->get()->first();
 
-        foreach ($ids as $id) {
-            $address = Address::select('lat', 'lng')->where(['id' => $id])->get()->first();
+        foreach($ids as $id) {
+            $address = Address::select('lat','lng')->where(['id' => $id])->get()->first();
 
             $address_obj = (object) [];
             $address_obj->lat = $address->lat;
             $address_obj->lng = $address->lng;
+
+            //array_push($positions, $address_obj);
             $positions[$id] = $address_obj;
         }
 
@@ -241,9 +254,9 @@ class AddressControler extends Controller
             'status' => true,
             'data' => [
                 'positions' => $positions,
-                'area' => $restorant->radius ? $restorant->radius : null,
+                'area' => $restorant->radius ? $restorant->radius : null
             ],
-            'msg' => '',
+            'msg' => ''
         ]);
     }
 }

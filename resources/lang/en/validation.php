@@ -40,7 +40,7 @@ return [
     'dimensions' => 'The :attribute has invalid image dimensions.',
     'distinct' => 'The :attribute field has a duplicate value.',
     'email' => 'The :attribute must be a valid email address.',
-    'ends_with' => 'The :attribute must end with one of the following: :values.',
+    'ends_with' => 'The :attribute must end with one of the following: :values',
     'exists' => 'The selected :attribute is invalid.',
     'file' => 'The :attribute must be a file.',
     'filled' => 'The :attribute field must have a value.',
@@ -90,11 +90,9 @@ return [
         'string' => 'The :attribute must be at least :min characters.',
         'array' => 'The :attribute must have at least :min items.',
     ],
-    'multiple_of' => 'The :attribute must be a multiple of :value',
     'not_in' => 'The selected :attribute is invalid.',
     'not_regex' => 'The :attribute format is invalid.',
     'numeric' => 'The :attribute must be a number.',
-    'password' => 'The password is incorrect.',
     'present' => 'The :attribute field must be present.',
     'regex' => 'The :attribute format is invalid.',
     'required' => 'The :attribute field is required.',
@@ -111,7 +109,7 @@ return [
         'string' => 'The :attribute must be :size characters.',
         'array' => 'The :attribute must contain :size items.',
     ],
-    'starts_with' => 'The :attribute must start with one of the following: :values.',
+    'starts_with' => 'The :attribute must start with one of the following: :values',
     'string' => 'The :attribute must be a string.',
     'timezone' => 'The :attribute must be a valid zone.',
     'unique' => 'The :attribute has already been taken.',
@@ -131,39 +129,9 @@ return [
     */
 
     'custom' => [
-        'order_price' => [
-            'min' => 'Order minimum is :min. Please add few more items in cart',
+        'attribute-name' => [
+            'rule-name' => 'custom-message',
         ],
-        'address_id' => [
-            'required' => 'Please select your address',
-        ],
-        'stripe_payment_error_action'=>[
-            'required'=>'The payment attempt failed because additional action is required before it can be completed'
-        ],
-        'stripe_payment_failure'=>[
-            'required'=>'The payment attempt failed for various other reasons, such as being out of available funds. Please check your provided data.'
-        ],
-        'paypal_payment_error_action'=>[
-            'required'=>'The payment attempt failed because additional action is required before it can be completed'
-        ],
-        'general_payment_error_action'=>[
-            'required'=>'The payment attempt failed. If you are system administrator, please check the issue in the payment provider.'
-        ],
-        'link_payment_error_action'=>[
-            'required'=>'Link based payment method not found'
-        ],
-        'paypal_payment_approval_missing'=>[
-            'required'=>'We where unable to obtain paypal payment link.'
-        ],
-        'mollie_error_action'=>[
-            'required'=>'Error on obtaining Payment Link.'
-        ],
-        'paystack_error_action'=>[
-            'required'=>"Error on communication with PayStack"
-        ],
-        'dinein_table_id'=>[
-            'required'=>'Please select your table',
-        ]
     ],
 
     /*

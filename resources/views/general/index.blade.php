@@ -21,30 +21,13 @@
                             <div class="col-8">
                                 <h3 class="mb-0">{{ __($title) }}</h3>
                             </div>
-                            
+                            @isset($action_link)
                                 <div class="col-4 text-right">
-                                    @isset($action_link)
-                                        <a href="{{ $action_link }}" class="btn btn-sm btn-primary">{{ __($action_name) }}</a>
-                                    @endisset
-                                    @isset($action_link2) 
-                                            <a href="{{ $action_link2 }}" class="btn btn-sm btn-primary">{{ __($action_name2) }}</a>
-                                    @endisset
-                                    @isset($action_link3) 
-                                            <a href="{{ $action_link3 }}" class="btn btn-sm btn-primary">{{ __($action_name3) }}</a>
-                                    @endisset
-                                    @isset($action_link4) 
-                                            <a href="{{ $action_link4 }}" class="btn btn-sm btn-primary">{{ __($action_name4) }}</a>
-                                    @endisset
-                                    @isset($usefilter)
-                                        <button id="show-hide-filters" class="btn btn-icon btn-1 btn-sm btn-outline-secondary" type="button">
-                                            <span class="btn-inner--icon"><i id="button-filters" class="ni ni-bold-down"></i></span>
-                                        </button>
-                                    @endisset
+                                    <a href="{{ $action_link }}" class="btn btn-sm btn-primary">{{ __($action_name) }}</a>
                                 </div>
+                            @endisset
+
                         </div>
-                        @isset($usefilter)
-                            @include('general.filters')
-                        @endisset
                     </div>
 
                     <div class="col-12">
@@ -60,16 +43,7 @@
                         <div class="table-responsive">
                             <table class="table align-items-center table-flush">
                                 <thead class="thead-light">
-                                    @if(isset($fields))
-                                        @foreach ($fields as $field)
-                                            <th>{{ __( $field['name'] ) }}</th>
-                                        @endforeach 
-                                        <th>{{ __('crud.actions') }}</th>
-                                    @else
-                                        @yield('thead')
-                                    @endif
-                                   
-                                       
+                                    @yield('thead')
                                 </thead>
                                 <tbody>
                                     @yield('tbody')
@@ -83,7 +57,7 @@
                                 {{ $items->links() }}
                             </nav>
                         @else
-                            <h4>{{__('crud.no_items',['items'=>$item_names])}}</h4>
+                            <h4>{{ __("There are no")." ".$item_names }} ...</h4>
                         @endif
                     </div>
                    @endif

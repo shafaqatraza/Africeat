@@ -3,7 +3,7 @@
  * Created by PhpStorm.
  * User: Fabian
  * Date: 12.05.16
- * Time: 07:24.
+ * Time: 07:24
  */
 
 return [
@@ -47,6 +47,6 @@ return [
         'namespace'  => 'Brotzka\DotenvEditor\Http\Controllers',
         'prefix'     => 'admin/env',
         'as'         => 'admin.env.',
-        'middleware' => ['web', 'isAdmin'],
+        'middleware' => ['web','isAdmin'],
     ],
 ];

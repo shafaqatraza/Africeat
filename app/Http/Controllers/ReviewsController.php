@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Ratings;
 use Illuminate\Http\Request;
+use App\Ratings;
 
 class ReviewsController extends Controller
 {
@@ -15,11 +15,11 @@ class ReviewsController extends Controller
     public function index()
     {
         return view('reviews.index', ['setup' => [
-            'title'=>__('Order reviews'),
-            'action_link'=>'',
-            'action_name'=>'',
+            'title'=>__("Order reviews"),
+            'action_link'=>"",
+            'action_name'=>"",
             'items'=>Ratings::paginate(10),
-            'item_names'=>__('reviews'),
+            'item_names'=>__("reviews")
         ]]);
     }
 
@@ -87,7 +87,6 @@ class ReviewsController extends Controller
     public function destroy(Ratings $rating)
     {
         $rating->delete();
-
         return redirect()->route('reviews.index')->withStatus(__('Rating has been removed'));
     }
 }

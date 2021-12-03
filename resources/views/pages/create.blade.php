@@ -56,16 +56,3 @@
 @include('layouts.footers.auth')
 </div>
 @endsection
-
-@section('js')
-    <!-- CKEditor -->
-    <script src="{{ asset('ckeditor') }}/ckeditor.js"></script>
-    <script>
-        "use strict";
-        CKEDITOR.replace('ckeditor', {
-            removePlugins: 'sourcearea',
-            filebrowserUploadUrl: "{{route('upload', ['_token' => csrf_token() ])}}",
-            filebrowserUploadMethod: 'form'
-        });
-    </script>
-@endsection

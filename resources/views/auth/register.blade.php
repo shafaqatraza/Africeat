@@ -1,9 +1,4 @@
 @extends('layouts.app', ['class' => 'bg-default'])
-@if (strlen(config('settings.recaptcha_site_key'))>2)
-    @section('head')
-    {!! htmlScriptTagJsApi([]) !!}
-    @endsection
-@endif
 
 @section('content')
     @include('layouts.headers.guest')
@@ -78,7 +73,7 @@
                                 </div>
                             </div>
 
-                            @if(config('settings.enable_birth_date_on_register'))
+                            @if(env('ENABLE_BIRTH_DATE_ON_REGISTER',false))
                             <div class="form-group">
                                 <div class="input-group input-group-alternative">
                                     <div class="input-group-prepend">

@@ -3,7 +3,7 @@
         <th scope="col">{{ __('ID') }}</th>
         @hasrole('admin|driver')
             <th scope="col">{{ __('Restaurant') }}</th>
-        @endif
+        @endhasrole
         <th class="table-web" scope="col">{{ __('Created') }}</th>
         <th class="table-web" scope="col">{{ __('Method') }}</th>
 
@@ -37,42 +37,43 @@
             </div>
         </div>
     </th>
-    @endif
+    @endhasrole
 
     <td class="table-web">
-        {{ $order->created_at->format(config('settings.datetime_display_format')) }}
+        {{ $order->created_at->format(env('DATETIME_DISPLAY_FORMAT','d M Y H:i')) }}
     </td>
     <td class="table-web">
-        @if(config('app.isft') || config('app.iswp'))
-            <span class="badge badge-primary badge-pill">{{ $order->getExpeditionType() }} | {{ __($order->payment_method) }} </span>
+        @if ($order->delivery_method==1)
+            <span class="badge badge-primary badge-pill">{{ __('Delivery') }} | {{ __($order->payment_method) }} </span>
         @else
-            <span class="badge badge-primary badge-pill">{{ $order->getExpeditionType() }} | {{ __($order->payment_method) }} </span>
+            <span class="badge badge-success badge-pill">{{ __('Pickup') }} | {{ __($order->payment_method) }}</span>
         @endif
+
     </td>
     
     <td class="table-web">
-        @money( $order->fee_value+$order->static_fee, config('settings.cashier_currency'),config('settings.do_convertion'))
+        @money( $order->fee_value+$order->static_fee, env('CASHIER_CURRENCY','usd'),true)
     </td>
     <td class="table-web">
-        @money( $order->payment_processor_fee, config('settings.cashier_currency'),config('settings.do_convertion'))
+        @money( $order->payment_processor_fee, env('CASHIER_CURRENCY','usd'),true)
     </td>
     <td class="table-web">
-        @money( $order->delivery_price, config('settings.cashier_currency'),config('settings.do_convertion'))
+        @money( $order->delivery_price, env('CASHIER_CURRENCY','usd'),true)
     </td>
     <td class="table-web">
-        @money( $order->order_price_with_discount-($order->fee_value+$order->static_fee), config('settings.cashier_currency'),config('settings.do_convertion'))
+        @money( $order->order_price-($order->fee_value+$order->static_fee), env('CASHIER_CURRENCY','usd'),true)
     </td>
     <td class="table-web">
-        @money( $order->vatvalue, config('settings.cashier_currency'),config('settings.do_convertion'))
+        @money( $order->vatvalue, env('CASHIER_CURRENCY','usd'),true)
     </td>
     <td class="table-web">
-        @money( $order->order_price_with_discount-($order->fee_value+$order->static_fee)-$order->vatvalue, config('settings.cashier_currency'),config('settings.do_convertion'))
+        @money( $order->order_price-($order->fee_value+$order->static_fee)-$order->vatvalue, env('CASHIER_CURRENCY','usd'),true)
     </td>
 
     
    
     <td class="table-web">
-        @money( $order->order_price_with_discount+$order->delivery_price, config('settings.cashier_currency'),config('settings.do_convertion'))
+        @money( $order->order_price+$order->delivery_price, env('CASHIER_CURRENCY','usd'),true)
     </td>
     
     

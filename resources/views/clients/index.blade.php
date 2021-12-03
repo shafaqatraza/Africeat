@@ -28,7 +28,7 @@
                                     <th scope="col">{{ __('Owner') }}</th>
                                     <th scope="col">{{ __('Owner email') }}</th>
                                     <th scope="col">{{ __('Creation Date') }}</th>
-                                    @if(config('settings.enable_birth_date_on_register'))
+                                    @if(env('ENABLE_BIRTH_DATE_ON_REGISTER',false))
                                         <th scope="col">{{ __('Birth Date') }}</th>
                                     @endif
                                     <th scope="col"></th>
@@ -42,8 +42,8 @@
                                         <td>
                                             <a href="mailto:{{ $client->email }}">{{ $client->email }}</a>
                                         </td>
-                                        <td>{{ $client->created_at->format(config('settings.datetime_display_format')) }}</td>
-                                        @if(config('settings.enable_birth_date_on_register'))
+                                        <td>{{ $client->created_at->format(env('DATETIME_DISPLAY_FORMAT','d M Y H:i')) }}</td>
+                                        @if(env('ENABLE_BIRTH_DATE_ON_REGISTER',false))
                                         <th scope="col">{{ $client->birth_date }}</th>
                                     @endif
                                         <td class="text-right">

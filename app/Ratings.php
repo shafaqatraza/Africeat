@@ -6,13 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ratings extends Model
 {
-    public function user()
-    {
-        return $this->belongsTo(\App\User::class);
+
+    function user(){
+        return $this->belongsTo('App\User');
     }
 
-    public function order()
-    {
-        return $this->belongsTo(\App\Order::class);
+    function order(){
+        return $this->belongsTo('App\Order');
     }
 }

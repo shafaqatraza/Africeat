@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Auth;
 
-use App\Http\Controllers\Controller;
-use App\Notifications\WelcomeNotification;
 use App\User;
-use Illuminate\Foundation\Auth\RegistersUsers;
-use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Foundation\Auth\RegistersUsers;
 use Illuminate\Support\Str;
+use App\Notifications\WelcomeNotification;
+
+use Illuminate\Http\Request;
 
 class RegisterController extends Controller
 {
@@ -51,20 +52,17 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
-        $rules = [
+        $rules=[
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'phone' => ['required', 'string', 'regex:/^([0-9\s\-\+\(\)]*)$/'],
+            'phone' => ['required', 'string', 'regex:/^([0-9\s\-\+\(\)]*)$/', 'min:8'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ];
-        if (strlen(config('settings.recaptcha_site_key')) > 2) {
-            $rules['g-recaptcha-response'] = 'recaptcha';
-        }
-        if (config('settings.enable_birth_date_on_register') && config('settings.minimum_years_to_register')) {
-            $rules['birth_date'] = 'required|date|date_format:Y-m-d|before:-'.config('settings.minimum_years_to_register').' years';
+        if(env('ENABLE_BIRTH_DATE_ON_REGISTER',false)&&env('MINIMUM_YEARS_TO_REGISTER',true)){
+            $rules['birth_date']='required|date|date_format:Y-m-d|before:-'.env('MINIMUM_YEARS_TO_REGISTER',18).' years';
         }
         //dd($rules);
-        return Validator::make($data, $rules);
+        return Validator::make($data, $rules );
     }
 
     /**
@@ -75,27 +73,39 @@ class RegisterController extends Controller
      */
     protected function create(array $data)
     {
+        /*return User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'phone' => $data['phone'],
+            'password' => Hash::make($data['password']),
+            'api_token' => Str::random(80)
+        ]);*/
+
+       //dd($data);
+
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $data['phone'],
             'password' => Hash::make($data['password']),
             'api_token' => Str::random(80),
-            'birth_date' => isset($data['birth_date']) ? $data['birth_date'] : '',
+            'birth_date' => isset($data['birth_date'])?$data['birth_date']:""
         ]);
+
+        
 
         $user->assignRole('client');
 
         //Send welcome email
+        $user->notify(new WelcomeNotification($user));
+
         return $user;
     }
-
     protected function registered(Request $request, User $user)
     {
-        if (config('settings.enable_sms_verification')) {
+        if(env('ENABLE_SMS_VERIFICATION',false)){
             $user->callToVerify();
         }
-
         return redirect($this->redirectPath());
     }
 }
